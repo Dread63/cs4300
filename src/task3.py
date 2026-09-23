@@ -1,4 +1,7 @@
 def positive_negative(number):
+    """
+    Checks whether a number is positive, negative, or zero and prints the result.
+    """
     if number > 0:
         print("Positive")
     elif number < 0:
@@ -7,7 +10,9 @@ def positive_negative(number):
         print("Zero")
 
 def print_prime_numbers():
-    
+    """
+    Uses a while loop to find and print the first 10 prime numbers.
+    """
     primes = []
 
     currentNum = 0
@@ -28,7 +33,9 @@ def print_prime_numbers():
         currentNum += 1
                     
 def sum_one_one_hundred():
-    
+    """
+    Uses a for loop to sum the numbers from 1 to 100 and prints the result.
+    """
     sum = 0
     for i in range(1, 101):
         sum += i

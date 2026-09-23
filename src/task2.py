@@ -1,4 +1,8 @@
 def main():
+    """
+    Demonstrates Python's core data types: integers, floats, strings,
+    and booleans by declaring, modifying, and printing each one.
+    """
     integer = 5
     floating_point = 5.75
     string = "Architecture"
