@@ -16,8 +16,8 @@ from src.task7 import log_ten, remainder, round_number
         (-1.23456, 2, -1.23),
         (0, 3, 0),
         (100.0, 0, 100.0),     
-        (1.005, 2, 1.0),           
-        (2.675, 2, 2.67),          
+        (1.005, 2, 1.0),           # banker's rounding: ties go to even
+        (2.675, 2, 2.68),          # numpy scales by 100 first: 267.50000...03 -> 268
     ],
 )
 def test_round_number(value, digits, expected):
@@ -53,7 +53,7 @@ def test_log_ten(value, expected):
 @pytest.mark.parametrize("bad_value", [0, -10])
 def test_log_ten_invalid_input_raises(bad_value):
     
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         log_ten(bad_value)
 
 @pytest.mark.parametrize(
@@ -74,5 +74,5 @@ def test_remainder(a, b, expected):
     assert math.isclose(remainder(a, b), expected)
 
 def test_remainder_divide_by_zero_raises():
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         remainder(10, 0)

@@ -2,9 +2,9 @@ import numpy
 
 def round_number(value, digits):
     """
-    Rounds a number to a specified number of decimal places.
+    Rounds a number to a specified number of decimal places using numpy.
     """
-    return round(value, digits)
+    return numpy.round(value, digits)
 
 def log_ten(value):
     """
