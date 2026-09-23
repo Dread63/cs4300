@@ -15,9 +15,15 @@ from src.task7 import log_ten, remainder, round_number
         (0.57721, 5, 0.57721),
         (-1.23456, 2, -1.23),
         (0, 3, 0),
-        (100.0, 0, 100.0),     
-        (1.005, 2, 1.0),           # banker's rounding: ties go to even
-        (2.675, 2, 2.68),          # numpy scales by 100 first: 267.50000...03 -> 268
+        (100.0, 0, 100.0),
+        # 1.005 is NOT a tie: floats store it as 1.00499999999999989342...
+        # (see f"{1.005:.20f}"), so it rounds down under any rounding rule.
+        (1.005, 2, 1.0),
+        # 0.125 = 2**-3 IS exactly representable in binary — a true tie —
+        # and ties go to the even digit: 0.12, not 0.13.
+        (0.125, 2, 0.12),
+        # numpy scales by 100 first: 2.675 * 100 = 267.50000...03 -> 268
+        (2.675, 2, 2.68),
     ],
 )
 def test_round_number(value, digits, expected):

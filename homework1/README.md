@@ -20,9 +20,8 @@ cs4300/
 |   |   `-- test_task1.py ... test_task7.py   # one test module per task
 |   |-- conftest.py               # makes `src` importable for pytest
 |   |-- requirements.txt          # numpy, pytest
-|   `-- homework_1.pdf            # Assignment description
-|-- homework2/                    # reserved for Homework 2
-`-- README.md
+|   `-- README.md
+`-- homework2/                    # reserved for Homework 2
 ```
 
 ## Setup
