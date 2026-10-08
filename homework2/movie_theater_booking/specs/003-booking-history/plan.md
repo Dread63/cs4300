@@ -69,7 +69,7 @@ twice (AC-7). `SeatAlreadyBooked` becomes a 409 through a small `SeatTaken` `API
 | AC-5 | view + Behave | `test_booking_history_empty_state`; "No bookings yet" |
 | AC-6 | view + API | `test_booking_history_signed_out_redirects_to_login`, `test_bookings_api_signed_out_403` (GET and POST) |
 | AC-7 | API | `test_create_booking_201`, `test_create_booking_taken_seat_409`, `test_create_booking_bad_seat_400` (missing, `"abc"`, 9999), `test_create_booking_ignores_user_in_request_data`, `test_seat_booked_via_seats_api_refused_via_bookings_api` |
-| AC-8 | API + view | `test_bookings_newest_first` (backdates one booking with `.update()`, since `booking_date` is set automatically) |
+| AC-8 | unit + API + view | `test_booking_ordering_newest_first` (backdates one booking with `.update()`, since `booking_date` is set automatically); order also asserted in `test_list_bookings_only_returns_own` and `test_booking_history_page_only_shows_own` |
 | AC-9 | API | `test_bookings_cannot_be_changed_or_deleted_405` |
 | 002 AC-3 | API (regression) | 002's `test_book_taken_seat_via_api_409` must still pass after `book` switches to `SeatTaken` |
 
