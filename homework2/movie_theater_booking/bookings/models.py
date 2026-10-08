@@ -20,8 +20,23 @@ class Movie(models.Model):
         return self.title
 
 class Seat(models.Model):
-    seat_number = models.PositiveIntegerField()
+    """One seat for one movie, so availability is per movie (spec 002 Open Q)."""
+
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="seats")
+    seat_number = models.CharField(max_length=4)
     booking_status = models.BooleanField(default=False)
+
+    class Meta:
+        # Alphabetical, so A10 would sort before A2; fine for A1-A9 (plan §6).
+        ordering = ["seat_number"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["movie", "seat_number"], name="unique_seat_number_per_movie"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.movie.title} {self.seat_number}"
 
 class Booking(models.Model):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)

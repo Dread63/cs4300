@@ -1,11 +1,12 @@
 from datetime import date
 
+from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import Movie
+from .models import Movie, Seat
 
 
 class MovieModelTests(TestCase):
@@ -185,3 +186,28 @@ class MovieListPageTests(TestCase):
 
         self.assertContains(response, "No movies are showing right now")
         self.assertNotContains(response, "list-group-item")
+
+
+class SeatModelTests(TestCase):
+    """Data rules for Seat (spec 002 §4, AC-10)."""
+
+    def setUp(self):
+        self.dune = Movie.objects.create(
+            title="Dune", release_date=date(2021, 10, 22), duration=155
+        )
+        self.up = Movie.objects.create(
+            title="Up", release_date=date(2009, 5, 29), duration=96
+        )
+
+    def test_seat_str_ordering_and_unique_number_per_movie(self):
+        a2 = Seat.objects.create(movie=self.dune, seat_number="A2")
+        a1 = Seat.objects.create(movie=self.dune, seat_number="A1")
+
+        self.assertEqual(str(a1), "Dune A1")
+        self.assertFalse(a1.booking_status)  # new seats start available
+        self.assertEqual(list(self.dune.seats.all()), [a1, a2])
+        # The same number is fine for another movie: seats belong to one movie.
+        Seat.objects.create(movie=self.up, seat_number="A1")
+        # But not twice for the same movie; the database refuses it.
+        with self.assertRaises(IntegrityError):
+            Seat.objects.create(movie=self.dune, seat_number="A1")
