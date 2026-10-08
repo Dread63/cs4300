@@ -21,6 +21,12 @@ def step_movies_exist(context):
         )
 
 
+@given("no movies exist")
+def step_no_movies(context):
+    # Each scenario starts with an empty test database; this makes that explicit.
+    Movie.objects.all().delete()
+
+
 @when("I open the movie list page")
 def step_open_movie_list(context):
     context.response = context.test.client.get(reverse("movie_list"))
@@ -35,3 +41,14 @@ def step_see_movie(context, title, description, button):
     context.test.assertEqual(len(items), 1, f"expected one list item for {title!r}")
     context.test.assertIn(description, items[0].get_text())
     context.test.assertIsNotNone(items[0].find("button", string=button))
+
+
+@then('I see "{text}"')
+def step_see_text(context, text):
+    context.test.assertContains(context.response, text)
+
+
+@then("I see no movie list")
+def step_no_movie_list(context):
+    page = BeautifulSoup(context.response.content, "html.parser")
+    context.test.assertEqual(page.select("li.list-group-item"), [])

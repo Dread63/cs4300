@@ -11,3 +11,10 @@ Feature: Movie listings
     When I open the movie list page
     Then I see "Dune" with "Spice." and a "Book Now" button
     And I see "Up" with "A house with balloons." and a "Book Now" button
+
+  Scenario: No movies showing
+    # AC-2
+    Given no movies exist
+    When I open the movie list page
+    Then I see "No movies are showing right now"
+    And I see no movie list
