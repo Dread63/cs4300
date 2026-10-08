@@ -20,7 +20,7 @@
 - [x] **T7** — `POST /api/seats/<id>/book/` → 201; `BookingSerializer` read-only `movie`/`user`/`booking_date` · test: `test_book_seat_via_api_201` · covers: AC-11
 - [x] **T8** — Booking a taken seat via API → 409, including the race case · tests: `test_book_taken_seat_via_api_409`, `test_duplicate_booking_returns_error_not_500` · covers: AC-3, AC-4
 - [x] **T9** — Signed out → 403; missing seat → 404 (GET and POST book) · tests: `test_book_via_api_signed_out_403`, `test_missing_seat_api_404` · covers: AC-8, AC-9
-- [ ] **T10** — `user` in request data is ignored · test: `test_booking_user_is_request_user_not_request_data` · covers: AC-5 (likely a verification test)
+- [x] **T10** — `user` in request data is ignored · test: `test_booking_user_is_request_user_not_request_data` · covers: AC-5 (likely a verification test)
 
 **Admin and sign-in**
 - [ ] **T11** — Register Movie, Seat, Booking in the admin · test: `test_admin_registers_models` · covers: Open Q (staff create seats)

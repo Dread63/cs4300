@@ -374,3 +374,16 @@ class SeatAPITests(APITestCase):
             self.client.post("/api/seats/9999/book/").status_code, status.HTTP_404_NOT_FOUND
         )
         self.assertEqual(Booking.objects.count(), 1)  # only setUp's A2
+
+    def test_booking_user_is_request_user_not_request_data(self):
+        alex = User.objects.create_user("alex", password="pw-alex-123")
+        self.client.force_authenticate(self.sam)
+
+        # AC-5: the client claims the booking is Alex's; it's Sam's, because Sam is signed in.
+        response = self.client.post(
+            f"/api/seats/{self.a1.id}/book/", {"user": alex.id}, format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.json()["user"], self.sam.id)
+        self.assertEqual(Booking.objects.get(seat=self.a1).user, self.sam)
