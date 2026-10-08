@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.validators import MinValueValidator
 # Create your models here.
 
 class Movie(models.Model):
@@ -8,7 +9,8 @@ class Movie(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     release_date = models.DateField("release date")
-    duration = models.PositiveIntegerField()
+    # PositiveIntegerField allows 0; a movie must run at least a minute (spec 001 AC-6).
+    duration = models.PositiveIntegerField(validators=[MinValueValidator(1)])
 
     class Meta:
         # Newest first, so the page and the API agree without each sorting (AC-10).

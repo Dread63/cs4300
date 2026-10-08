@@ -86,3 +86,15 @@ class MovieAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("release_date", response.json())
         self.assertEqual(Movie.objects.count(), 2)  # nothing saved
+
+    def test_create_movie_zero_duration_400(self):
+        # Boundary: 0 is the edge case, -5 is the "less than 0" equivalence class.
+        for duration in (0, -5):
+            with self.subTest(duration=duration):
+                data = {"title": "Arrival", "release_date": "2016-11-11", "duration": duration}
+
+                response = self.client.post("/api/movies/", data, format="json")
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn("duration", response.json())
+                self.assertEqual(Movie.objects.count(), 2)  # nothing saved

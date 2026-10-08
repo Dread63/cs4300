@@ -38,8 +38,8 @@ Each **Spec ref** names the acceptance criterion (AC-#) in [spec.md](spec.md) th
 |---|---|
 | `movie_theater_booking/settings.py` | add `rest_framework`, `bookings`, `behave_django` to `INSTALLED_APPS` |
 | `movie_theater_booking/urls.py` | include `bookings.urls` |
-| `bookings/models.py` | `Movie` |
-| `bookings/serializers.py` | `MovieSerializer` (duration > 0 validation) |
+| `bookings/models.py` | `Movie` (incl. `MinValueValidator(1)` on duration) |
+| `bookings/serializers.py` | `MovieSerializer` (duration > 0 comes from the model's `MinValueValidator(1)`) |
 | `bookings/views.py` | `MovieViewSet`, `movie_list` |
 | `bookings/urls.py` | router + `movie_list` route |
 | `bookings/templates/bookings/base.html` | Bootstrap CSS link, navbar (Movies only for now), `{% block content %}` |
