@@ -546,3 +546,27 @@ class SeatBookingPageTests(TestCase):
             response, f'{reverse("login")}?next={self.url}', fetch_redirect_response=False
         )
         self.assertFalse(Booking.objects.filter(seat=self.seats["A1"]).exists())
+
+    def test_seat_booked_via_page_refused_via_seats_api(self):
+        a1 = self.seats["A1"]
+        self.client.force_login(self.sam)
+        self.client.post(self.url, {"seat": a1.id})
+
+        # AC-6: Alex tries the same seat through the API; one set of rules refuses it.
+        self.client.force_login(User.objects.create_user("alex", password="pw-alex-123"))
+        response = self.client.post(f"/api/seats/{a1.id}/book/")
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(Booking.objects.get(seat=a1).user, self.sam)
+
+    def test_seat_booked_via_api_refused_via_page(self):
+        a1 = self.seats["A1"]
+        self.client.force_login(self.sam)
+        self.assertEqual(self.client.post(f"/api/seats/{a1.id}/book/").status_code, 201)
+
+        # AC-6, the other way round: the page refuses a seat booked through the API.
+        self.client.force_login(User.objects.create_user("alex", password="pw-alex-123"))
+        response = self.client.post(self.url, {"seat": a1.id}, follow=True)
+
+        self.assertContains(response, "Seat A1 is already booked")
+        self.assertEqual(Booking.objects.get(seat=a1).user, self.sam)
