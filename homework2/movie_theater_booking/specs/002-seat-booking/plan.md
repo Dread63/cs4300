@@ -90,7 +90,7 @@ Dune". Sign-in uses Django's built-in auth views (`django.contrib.auth.urls`).
 | AC-6 | view + API | `test_seat_booked_via_page_refused_via_seats_api`, `test_seat_booked_via_api_refused_via_page` |
 | AC-7 | view | `test_seat_booking_uses_base_template` |
 | AC-8 | view + API + Behave | `test_signed_out_sees_sign_in_to_book`, `test_signed_out_post_redirects_to_login`, `test_book_via_api_signed_out_403`; "Browse seats signed out" |
-| AC-9 | view + API | `test_seat_page_missing_movie_404`, `test_missing_seat_api_404` (GET and POST book) |
+| AC-9 | view + API | `test_seat_page_missing_movie_404`, `test_missing_seat_api_404` (GET and POST book), `test_book_missing_seat_via_page_404` (missing, other movie's, or non-numeric seat) |
 | AC-10 | API | `test_list_seats_filtered_by_movie`, `test_list_all_seats` |
 | AC-11 | API | `test_book_seat_via_api_201` |
 | AC-12 | view + Behave | `test_sign_in_and_out`, `test_sign_in_wrong_password`; "Sign in" |

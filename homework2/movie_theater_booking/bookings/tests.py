@@ -495,3 +495,34 @@ class SeatBookingPageTests(TestCase):
             link = page.select_one(f'li[data-seat="{n}"] a')
             self.assertEqual((link.get_text(strip=True), link["href"]), ("Sign in to book", sign_in))
         self.assertIsNone(page.select_one('li[data-seat="A2"] a'))  # booked: nothing to do
+
+    def test_book_seat_via_page(self):
+        self.client.force_login(self.sam)
+        a1 = self.seats["A1"]
+
+        # Signed in, each free seat has a Book button that posts the seat's id.
+        page = BeautifulSoup(self.client.get(self.url).content, "html.parser")
+        form = page.select_one('li[data-seat="A1"] form')
+        self.assertEqual((form["method"], form.select_one('[name="seat"]')["value"]), ("post", str(a1.id)))
+
+        response = self.client.post(self.url, {"seat": a1.id}, follow=True)
+
+        # AC-2: back on Dune's page, with a message, and A1 now shows as booked.
+        self.assertRedirects(response, self.url)
+        self.assertContains(response, "Seat A1 booked for Dune")
+        self.assertIn("Booked", self.seat_rows(response)["A1"])
+        booking = Booking.objects.get(seat=a1)
+        self.assertEqual((booking.user, booking.booking_date), (self.sam, date.today()))
+        a1.refresh_from_db()
+        self.assertTrue(a1.booking_status)
+
+    def test_book_missing_seat_via_page_404(self):
+        self.client.force_login(self.sam)
+        other_movie = Movie.objects.create(title="Up", release_date=date(2009, 5, 29), duration=96)
+        up_a1 = Seat.objects.create(movie=other_movie, seat_number="A1")
+
+        # AC-9 / §5: no such seat, a seat from another movie, or junk input: all 404.
+        for seat in ("9999", up_a1.id, "abc", ""):
+            with self.subTest(seat=seat):
+                self.assertEqual(self.client.post(self.url, {"seat": seat}).status_code, 404)
+        self.assertEqual(Booking.objects.count(), 1)  # only setUp's A2

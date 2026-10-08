@@ -1,4 +1,6 @@
-from django.shortcuts import get_object_or_404, render
+from django.contrib import messages
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect, render
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -52,8 +54,18 @@ def movie_list(request):
 
 
 def seat_booking(request, movie_id):
-    """The seat booking page for one movie: which seats are free (spec 002 AC-1)."""
+    """The seat booking page for one movie: see which seats are free, and book one (spec 002)."""
     movie = get_object_or_404(Movie, pk=movie_id)
+    if request.method == "POST":
+        seat_id = request.POST.get("seat", "")
+        if not seat_id.isdecimal():  # junk would crash the lookup (500); it's no such seat
+            raise Http404("No such seat")
+        # Looking up through movie.seats means another movie's seat id is also a 404.
+        seat = get_object_or_404(movie.seats, pk=seat_id)
+        seat.book(request.user)
+        messages.success(request, f"Seat {seat.seat_number} booked for {movie.title}")
+        # Redirect after POST, so refreshing the page doesn't resubmit the booking (AC-2).
+        return redirect("book_seat", movie_id=movie.id)
     return render(
         request, "bookings/seat_booking.html", {"movie": movie, "seats": movie.seats.all()}
     )
