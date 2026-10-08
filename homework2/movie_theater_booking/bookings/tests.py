@@ -54,3 +54,17 @@ class MovieAPITests(APITestCase):
                 "duration": 155,
             },
         )
+
+    def test_create_movie(self):
+        data = {
+            "title": "Arrival",
+            "description": "Linguists meet aliens.",
+            "release_date": "2016-11-11",
+            "duration": 116,
+        }
+
+        response = self.client.post("/api/movies/", data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        titles = [m["title"] for m in self.client.get("/api/movies/").json()]
+        self.assertIn("Arrival", titles)
