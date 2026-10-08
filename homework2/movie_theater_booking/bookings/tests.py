@@ -470,3 +470,16 @@ class SeatBookingPageTests(TestCase):
 
         self.assertTemplateUsed(response, "bookings/seat_booking.html")
         self.assertTemplateUsed(response, "bookings/base.html")
+
+    def test_seat_page_missing_movie_404(self):
+        response = self.client.get(reverse("book_seat", args=[9999]))
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_seat_page_empty_state(self):
+        up = Movie.objects.create(title="Up", release_date=date(2009, 5, 29), duration=96)
+
+        response = self.client.get(reverse("book_seat", args=[up.id]))
+
+        self.assertContains(response, "No seats for this movie yet")
+        self.assertEqual(self.seat_rows(response), {})

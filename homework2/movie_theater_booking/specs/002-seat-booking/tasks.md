@@ -28,7 +28,7 @@
 
 **Seat booking page**
 - [x] **T13** — `seat_booking` view + `book_seat` URL + template: seats with Available/Booked, extends `base.html` · tests: `test_seat_page_shows_available_and_booked`, `test_seat_booking_uses_base_template` · covers: AC-1, AC-7
-- [ ] **T14** — Missing movie → 404; movie with no seats → empty state · tests: `test_seat_page_missing_movie_404`, `test_seat_page_empty_state` · covers: AC-9, AC-13
+- [x] **T14** — Missing movie → 404; movie with no seats → empty state · tests: `test_seat_page_missing_movie_404`, `test_seat_page_empty_state` · covers: AC-9, AC-13
 - [ ] **T15** — Signed out: available seats show "Sign in to book" · test: `test_signed_out_sees_sign_in_to_book` · covers: AC-8
 - [ ] **T16** — POST books via `Seat.book()`, redirects back, shows "Seat A1 booked for Dune" (messages in `base.html`) · test: `test_book_seat_via_page` · covers: AC-2
 - [ ] **T17** — POST on a taken seat shows "Seat A2 is already booked"; signed-out POST → sign-in page · tests: `test_book_taken_seat_via_page_shows_error`, `test_signed_out_post_redirects_to_login` · covers: AC-3, AC-8

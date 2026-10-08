@@ -4,6 +4,7 @@
 <a class="small" href="{% url 'movie_list' %}">&larr; All movies</a>
 <h2 class="mt-2">{{ movie.title }}</h2>
 <p class="text-muted">{{ movie.release_date|date:"M j, Y" }} · {{ movie.duration }} min</p>
+{% if seats %}
 <ul class="list-group">
     {% for seat in seats %}
     <li class="list-group-item d-flex justify-content-between align-items-center" data-seat="{{ seat.seat_number }}">
@@ -16,4 +17,7 @@
     </li>
     {% endfor %}
 </ul>
+{% else %}
+<div class="alert alert-info">No seats for this movie yet.</div>
+{% endif %}
 {% endblock %}
