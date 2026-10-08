@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.contrib import admin
 from django.contrib.auth.models import User
 
 from django.db import IntegrityError
@@ -387,3 +388,12 @@ class SeatAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.json()["user"], self.sam.id)
         self.assertEqual(Booking.objects.get(seat=self.a1).user, self.sam)
+
+
+class AdminTests(TestCase):
+    """Staff create seats and accounts in the admin (spec 002 Open Q)."""
+
+    def test_admin_registers_models(self):
+        for model in (Movie, Seat, Booking):
+            with self.subTest(model=model.__name__):
+                self.assertTrue(admin.site.is_registered(model))

@@ -23,7 +23,7 @@
 - [x] **T10** — `user` in request data is ignored · test: `test_booking_user_is_request_user_not_request_data` · covers: AC-5 (likely a verification test)
 
 **Admin and sign-in**
-- [ ] **T11** — Register Movie, Seat, Booking in the admin · test: `test_admin_registers_models` · covers: Open Q (staff create seats)
+- [x] **T11** — Register Movie, Seat, Booking in the admin · test: `test_admin_registers_models` · covers: Open Q (staff create seats)
 - [ ] **T12** — `django.contrib.auth.urls`, `registration/login.html`, redirect settings, navbar "Sign in" / "username · Sign out" · tests: `test_sign_in_and_out`, `test_sign_in_wrong_password` · covers: AC-12
 
 **Seat booking page**
