@@ -118,3 +118,25 @@ class MovieAPITests(APITestCase):
         response = self.client.get("/api/movies/9999/")
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_update_movie(self):
+        url = f"/api/movies/{self.dune.id}/"
+
+        # PUT replaces the whole movie, so every required field is sent.
+        response = self.client.put(
+            url,
+            {"title": "Dune: Part One", "release_date": "2021-10-22", "duration": 156},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["title"], "Dune: Part One")
+        self.assertEqual(response.json()["duration"], 156)
+
+        # PATCH changes only the fields sent.
+        response = self.client.patch(url, {"duration": 155}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["duration"], 155)
+        self.assertEqual(response.json()["title"], "Dune: Part One")
+
+        self.dune.refresh_from_db()
+        self.assertEqual((self.dune.title, self.dune.duration), ("Dune: Part One", 155))
