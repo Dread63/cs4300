@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import serializers, viewsets
 
 from .models import Movie, Seat
 from .serializers import MovieSerializer, SeatSerializer
@@ -24,6 +24,9 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):
         seats = Seat.objects.all()
         movie_id = self.request.query_params.get("movie")
         if movie_id:
+            # The filter would crash (500) on a non-number, so refuse it as bad input (AC-14).
+            if not movie_id.isdecimal():
+                raise serializers.ValidationError({"movie": ["Must be a movie id (a whole number)."]})
             seats = seats.filter(movie_id=movie_id)
         return seats
 

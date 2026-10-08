@@ -51,7 +51,7 @@ Dune". Sign-in uses Django's built-in auth views (`django.contrib.auth.urls`).
 | GET | `/movies/<movie_id>/seats/` (named `book_seat`) | `seat_booking` view → `seat_booking.html` | HTML / 404 | AC-1, AC-7, AC-8, AC-9, AC-13 |
 | POST | `/movies/<movie_id>/seats/` (form field `seat`) | `seat_booking` view → `Seat.book()` → redirect back with a message | 302 / 404; sign-in page if signed out | AC-2, AC-3, AC-5, AC-6, AC-8 |
 | GET/POST | `/accounts/login/`, POST `/accounts/logout/` | Django's `LoginView` / `LogoutView` via `include("django.contrib.auth.urls")` | HTML / 302 | AC-12 |
-| GET | `/api/seats/` and `?movie=<id>` | `SeatViewSet.list` (`get_queryset` filters by `movie`) | 200 list | AC-10 |
+| GET | `/api/seats/` and `?movie=<id>` | `SeatViewSet.list` (`get_queryset` filters by `movie`; a non-numeric `movie` raises DRF `ValidationError`) | 200 list / 400 | AC-10, AC-14 |
 | GET | `/api/seats/<id>/` | `SeatViewSet.retrieve` | 200 / 404 | AC-9 |
 | POST | `/api/seats/<id>/book/` | `SeatViewSet.book` (`@action`, `IsAuthenticated`) → `Seat.book()` | 201 booking / 409 / 403 / 404 | AC-3, AC-5, AC-6, AC-8, AC-9, AC-11 |
 
@@ -95,6 +95,7 @@ Dune". Sign-in uses Django's built-in auth views (`django.contrib.auth.urls`).
 | AC-11 | API | `test_book_seat_via_api_201` |
 | AC-12 | view + Behave | `test_sign_in_and_out`, `test_sign_in_wrong_password`; "Sign in" |
 | AC-13 | view | `test_seat_page_empty_state` |
+| AC-14 | API | `test_list_seats_bad_movie_filter_400` (plus `?movie=9999` → 200, empty) |
 | Open Q | unit | `test_admin_registers_models` |
 
 ## 6. Risks & decisions

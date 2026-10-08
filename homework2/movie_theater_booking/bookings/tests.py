@@ -307,3 +307,12 @@ class SeatAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 4)
+
+    def test_list_seats_bad_movie_filter_400(self):
+        response = self.client.get("/api/seats/", {"movie": "abc"})
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("movie", response.json())
+        # A number with no such movie isn't an error, just no seats.
+        response = self.client.get("/api/seats/", {"movie": 9999})
+        self.assertEqual((response.status_code, response.json()), (200, []))

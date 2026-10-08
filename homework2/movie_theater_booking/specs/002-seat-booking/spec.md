@@ -107,6 +107,12 @@ A moviegoer who has picked a movie needs to see which seats are free and reserve
 - When I open Up's seat booking page
 - Then I see "No seats for this movie yet"
 
+**AC-14 (US-3): Bad movie filter**
+- Given seats exist
+- When a client sends `GET /api/seats/?movie=abc`
+- Then the response is **400** with an error for `movie`, never a 500
+- And `GET /api/seats/?movie=9999` (a number, but no such movie) is 200 with an empty list
+
 ## 4. Data
 | Thing | Information | Rules |
 |---|---|---|
@@ -120,7 +126,7 @@ A moviegoer who has picked a movie needs to see which seats are free and reserve
 |---|---|---|---|
 | View seats for a movie (page) | movie id | page listing the movie's seats, each available or booked | 404 if no such movie |
 | Sign in / sign out (page) | username, password | back to the previous page, signed in / signed out | sign-in page with an error |
-| List seats (API) | optional `?movie=<id>` | 200, list | — |
+| List seats (API) | optional `?movie=<id>` | 200, list (empty for an unknown id) | 400 if `movie` isn't a number |
 | Get one seat (API) | id | 200, seat | 404 |
 | Book a seat (page) | seat, signed-in user | message "Seat A1 booked for Dune" on the same page | "Seat A2 is already booked"; sign-in page if signed out; 404 if no such seat |
 | Book a seat (API) | seat id, signed-in user | 201, booking | 409 taken; 403 signed out; 404 no such seat |
@@ -164,7 +170,7 @@ A moviegoer who has picked a movie needs to see which seats are free and reserve
       `/api/bookings/` all call it. The plan names where it lives. If each copied the rules, a fix
       in one place (say, the AC-4 race) would leave the others broken, breaking AC-6.
 - [x] Can a booking be cancelled? → **No, out of scope for HW2.** It would need a second place that sets booking status back to available. Revisit only if time allows.
-- [ ] **`GET /api/seats/?movie=abc` returns 500** (found in T6: a non-numeric id crashes the
-      filter). Proposed: **400** with an error for `movie`, as a new AC-14 and one small task after T6.
-      An unknown numeric id (`?movie=9999`) returns 200 with an empty list.
+- [x] **`GET /api/seats/?movie=abc` returned 500** (found while building the seat list: a
+      non-numeric id crashed the filter). → **400** with an error for `movie` (AC-14). An unknown
+      numeric id returns 200 with an empty list.
 - [x] Who creates seats? → **Staff, in the Django admin**, plus seed data for the Render deploy (planned with deployment). Without seats there's nothing to book, so the page shows "No seats for this movie yet" (AC-13).
