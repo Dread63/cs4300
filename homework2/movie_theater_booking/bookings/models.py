@@ -19,6 +19,10 @@ class Movie(models.Model):
     def __str__(self):
         return self.title
 
+class SeatAlreadyBooked(Exception):
+    """Raised by Seat.book() when the seat is taken (spec 002 AC-3)."""
+
+
 class Seat(models.Model):
     """One seat for one movie, so availability is per movie (spec 002 Open Q)."""
 
@@ -46,6 +50,10 @@ class Seat(models.Model):
         """
         # Booking and status are saved together or not at all, so they can't disagree.
         with transaction.atomic():
+            # Ask the database, not this instance, which may be stale. This gives the
+            # friendly error; it can't stop a race on its own (see AC-4 below).
+            if Seat.objects.filter(pk=self.pk, booking_status=True).exists():
+                raise SeatAlreadyBooked(f"Seat {self.seat_number} is already booked")
             booking = Booking.objects.create(movie=self.movie, seat=self, user=user)
             self.booking_status = True
             self.save(update_fields=["booking_status"])

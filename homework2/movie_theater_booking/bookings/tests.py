@@ -8,7 +8,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import Booking, Movie, Seat
+from .models import Booking, Movie, Seat, SeatAlreadyBooked
 
 
 class MovieModelTests(TestCase):
@@ -246,3 +246,14 @@ class BookingModelTests(TestCase):
         self.assertEqual(Booking.objects.count(), 1)
         self.a1.refresh_from_db()
         self.assertTrue(self.a1.booking_status)
+
+    def test_seat_book_taken_raises(self):
+        original = self.a1.book(self.sam)
+        # A fresh copy, as a second request would load it from the database.
+        a1_again = Seat.objects.get(pk=self.a1.pk)
+
+        with self.assertRaisesMessage(SeatAlreadyBooked, "Seat A1 is already booked"):
+            a1_again.book(self.alex)
+
+        # AC-3: nothing changes; A1 still has exactly one booking, the original one.
+        self.assertEqual(list(Booking.objects.all()), [original])
