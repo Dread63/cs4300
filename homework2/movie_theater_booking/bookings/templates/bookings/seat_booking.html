@@ -12,7 +12,12 @@
         {% if seat.booking_status %}
         <span class="badge text-bg-secondary">Booked</span>
         {% else %}
-        <span class="badge text-bg-success">Available</span>
+        <span>
+            <span class="badge text-bg-success me-2">Available</span>
+            {% if not user.is_authenticated %}
+            <a class="btn btn-outline-primary btn-sm" href="{% url 'login' %}?next={{ request.path|urlencode }}">Sign in to book</a>
+            {% endif %}
+        </span>
         {% endif %}
     </li>
     {% endfor %}

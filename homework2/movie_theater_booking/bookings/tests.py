@@ -483,3 +483,15 @@ class SeatBookingPageTests(TestCase):
 
         self.assertContains(response, "No seats for this movie yet")
         self.assertEqual(self.seat_rows(response), {})
+
+    def test_signed_out_sees_sign_in_to_book(self):
+        response = self.client.get(self.url)
+
+        # AC-8: I can still see availability, and each free seat sends me to sign in
+        # and back here.
+        page = BeautifulSoup(response.content, "html.parser")
+        sign_in = f'{reverse("login")}?next={self.url}'
+        for n in ("A1", "A3", "A4", "A5"):
+            link = page.select_one(f'li[data-seat="{n}"] a')
+            self.assertEqual((link.get_text(strip=True), link["href"]), ("Sign in to book", sign_in))
+        self.assertIsNone(page.select_one('li[data-seat="A2"] a'))  # booked: nothing to do
