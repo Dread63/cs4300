@@ -1,7 +1,10 @@
+import os
 from datetime import date, timedelta
+from unittest import mock
 
 from django.contrib import admin
 from django.contrib.auth.models import User
+from django.core.management import call_command
 
 from django.db import IntegrityError
 from django.test import TestCase
@@ -836,3 +839,28 @@ class BookingHistoryPageTests(TestCase):
         links = navbar_links(self.client.get(reverse("movie_list")))
         self.assertEqual(links["Movies"], reverse("movie_list"))
         self.assertEqual(links["My Bookings"], reverse("booking_history"))
+
+
+class SeedDemoCommandTests(TestCase):
+    """`manage.py seed_demo`: demo data for a fresh database, e.g. on every Render deploy."""
+
+    def test_seed_demo_creates_movies_seats_and_demo_user(self):
+        with mock.patch.dict(os.environ, {"DEMO_PASSWORD": "pw-demo-123"}):
+            call_command("seed_demo", stdout=open(os.devnull, "w"))
+            call_command("seed_demo", stdout=open(os.devnull, "w"))  # safe to run twice
+
+        self.assertGreaterEqual(Movie.objects.count(), 3)
+        for movie in Movie.objects.all():
+            self.assertEqual(
+                [s.seat_number for s in movie.seats.all()], ["A1", "A2", "A3", "A4", "A5"]
+            )
+        demo = User.objects.get(username="demo")
+        self.assertTrue(demo.check_password("pw-demo-123"))
+
+    def test_seed_demo_without_password_skips_demo_user(self):
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("DEMO_PASSWORD", None)
+            call_command("seed_demo", stdout=open(os.devnull, "w"))
+
+        self.assertGreater(Seat.objects.count(), 0)
+        self.assertFalse(User.objects.filter(username="demo").exists())

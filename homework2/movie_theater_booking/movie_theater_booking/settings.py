@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 from django.contrib.messages import constants as message_constants
@@ -21,13 +22,34 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-xoq)0x)q3y=pk!_y5q$rh1b&5-b^-#a-xdjx+ei+4$lz=^t+sg'
+# Locally (and in DevEdu) these defaults just work. On Render, which sets RENDER=true,
+# DEBUG is off unless asked for, and SECRET_KEY must come from the environment.
+ON_RENDER = 'RENDER' in os.environ
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False' if ON_RENDER else 'True') == 'True'
 
-ALLOWED_HOSTS = []
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('SECRET_KEY') or (
+    'django-insecure-dev-only-key-never-used-in-production' if not ON_RENDER else None
+)
+if not SECRET_KEY:
+    raise RuntimeError('Set the SECRET_KEY environment variable.')
+
+# localhost, DevEdu's app-*.devedu.io, and the Render hostname (Render sets it).
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.devedu.io']
+CSRF_TRUSTED_ORIGINS = ['https://*.devedu.io']
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+
+if ON_RENDER:
+    # Render ends HTTPS at its proxy and forwards plain HTTP; this header says the original was HTTPS.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 
 # Application definition
@@ -46,6 +68,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Serves collected static files (the admin's CSS/JS) under gunicorn, with no extra server.
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -120,6 +144,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # where collectstatic gathers files for whitenoise
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage'},
+}
 
 # Where sign-in and sign-out land when there's no ?next= page to return to.
 LOGIN_REDIRECT_URL = 'movie_list'
@@ -137,3 +166,6 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+# The app sends no email (no sign-up or password reset), so the console backend is fine
+# in production too; silence the deploy check that asks for a real one.
+SILENCED_SYSTEM_CHECKS = ['mail.E001']

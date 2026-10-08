@@ -6,6 +6,8 @@ cucumber-expressions==20.1.0
 cucumber-tag-expressions==11.0.1
 Django==6.1.2
 djangorestframework==3.18.1
+gunicorn==26.2.0
 parse==1.22.2
 parse_type==0.6.6
 soupsieve==2.10
+whitenoise==6.12.0
