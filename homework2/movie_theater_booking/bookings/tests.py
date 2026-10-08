@@ -1,6 +1,7 @@
 from datetime import date
 
 from django.test import TestCase
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -149,3 +150,24 @@ class MovieAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Movie.objects.filter(id=self.dune.id).exists())
         self.assertEqual(self.client.get(url).status_code, status.HTTP_404_NOT_FOUND)
+
+
+class MovieListPageTests(TestCase):
+    """The movie list page at / (spec 001 AC-1 to AC-3, AC-9)."""
+
+    def setUp(self):
+        Movie.objects.create(
+            title="Dune",
+            description="Spice.",
+            release_date=date(2021, 10, 22),
+            duration=155,
+        )
+
+    def test_movie_list_uses_base_template(self):
+        response = self.client.get(reverse("movie_list"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "bookings/movie_list.html")
+        self.assertTemplateUsed(response, "bookings/base.html")
+        self.assertContains(response, "bootstrap.min.css")
+        self.assertContains(response, f'href="{reverse("movie_list")}">Movies</a>', html=False)

@@ -1,0 +1,15 @@
+{% extends 'bookings/base.html' %}
+{% block title %}Movie List{% endblock %}
+{% block content %}
+<h2 class="mb-3">Available Movies</h2>
+<ul class="list-group">
+    {% for movie in movies %}
+    <li class="list-group-item">
+        <h5>{{ movie.title }}</h5>
+        <p>{{ movie.description }}</p>
+        {# Disabled until feature 002 adds the seat booking page (spec 001 AC-1). #}
+        <button class="btn btn-primary" disabled>Book Now</button>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

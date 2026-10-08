@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from rest_framework import viewsets
 
 from .models import Movie
@@ -9,3 +10,8 @@ class MovieViewSet(viewsets.ModelViewSet):
 
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
+
+
+def movie_list(request):
+    """The movie list page; reads the same Movie data as the API (spec 001)."""
+    return render(request, "bookings/movie_list.html", {"movies": Movie.objects.all()})
