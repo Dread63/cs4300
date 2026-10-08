@@ -14,7 +14,7 @@
 - [x] **T2** — `BookingViewSet` (list) + router + `IsAuthenticated`; `get_queryset()` is only my bookings · test: `test_list_bookings_only_returns_own` (also checks newest first) · covers: AC-2, AC-8
 - [x] **T3** — Retrieve: mine → 200, someone else's → 404 · tests: `test_retrieve_own_booking`, `test_cannot_retrieve_another_users_booking` · covers: AC-3
 - [x] **T4** — Create: `POST {"seat": id}` → 201 via `Seat.book(request.user)` in `perform_create()` · test: `test_create_booking_201` · covers: AC-7
-- [ ] **T5** — Taken seat → 409: `SeatTaken` exception, drop DRF's auto `UniqueValidator` on `seat`; `/api/seats/<id>/book/` raises `SeatTaken` too · tests: `test_create_booking_taken_seat_409`, `test_seat_booked_via_seats_api_refused_via_bookings_api` (+ 002's `test_book_taken_seat_via_api_409` still green) · covers: AC-7
+- [x] **T5** — Taken seat → 409: `SeatTaken` exception, drop DRF's auto `UniqueValidator` on `seat`; `/api/seats/<id>/book/` raises `SeatTaken` too · tests: `test_create_booking_taken_seat_409`, `test_seat_booked_via_seats_api_refused_via_bookings_api` (+ 002's `test_book_taken_seat_via_api_409` still green) · covers: AC-7
 - [ ] **T6** — Bad seat → 400: missing, `"abc"`, 9999 · test: `test_create_booking_bad_seat_400` · covers: AC-7 (likely verification)
 - [ ] **T7** — `user` in request data is ignored · test: `test_create_booking_ignores_user_in_request_data` · covers: AC-7 (likely verification)
 - [ ] **T8** — Signed out → 403 for GET and POST · test: `test_bookings_api_signed_out_403` · covers: AC-6 (likely verification)

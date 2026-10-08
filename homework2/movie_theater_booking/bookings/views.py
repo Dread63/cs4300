@@ -4,11 +4,21 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Booking, Movie, Seat, SeatAlreadyBooked
 from .serializers import BookingSerializer, MovieSerializer, SeatSerializer
+
+
+class SeatTaken(APIException):
+    """409 Conflict for SeatAlreadyBooked: the request is fine, but the seat's state refuses it.
+
+    Both booking endpoints raise this, so they answer a taken seat the same way (002 AC-3).
+    """
+
+    status_code = status.HTTP_409_CONFLICT
 
 
 class MovieViewSet(viewsets.ModelViewSet):
@@ -44,8 +54,7 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):
         try:
             booking = self.get_object().book(request.user)
         except SeatAlreadyBooked as taken:
-            # 409 Conflict: the request is fine, but the seat's current state refuses it (AC-3).
-            return Response({"detail": str(taken)}, status=status.HTTP_409_CONFLICT)
+            raise SeatTaken(str(taken))
         return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
 
 
@@ -70,7 +79,10 @@ class BookingViewSet(
         Not serializer.save(): that would skip the booking rules and booking_status.
         """
         seat = serializer.validated_data["seat"]
-        serializer.instance = seat.book(self.request.user)
+        try:
+            serializer.instance = seat.book(self.request.user)
+        except SeatAlreadyBooked as taken:
+            raise SeatTaken(str(taken))
 
 
 def movie_list(request):

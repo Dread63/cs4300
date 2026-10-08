@@ -677,3 +677,24 @@ class BookingAPITests(APITestCase):
         # Went through Seat.book(), which is the only thing that sets the status.
         self.a3.refresh_from_db()
         self.assertTrue(self.a3.booking_status)
+
+    def test_create_booking_taken_seat_409(self):
+        self.client.force_authenticate(self.sam)
+
+        response = self.client.post("/api/bookings/", {"seat": self.a2.id}, format="json")
+
+        # AC-7: Alex already has A2; same 409 and message as 002's /api/seats/ (002 AC-3).
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.json(), {"detail": "Seat A2 is already booked"})
+        self.assertEqual(Booking.objects.get(seat=self.a2), self.alexs)
+
+    def test_seat_booked_via_seats_api_refused_via_bookings_api(self):
+        self.client.force_authenticate(self.alex)
+        self.assertEqual(self.client.post(f"/api/seats/{self.a3.id}/book/").status_code, 201)
+
+        # 002 AC-6 / 003 AC-7: a third way in, the same one set of rules.
+        self.client.force_authenticate(self.sam)
+        response = self.client.post("/api/bookings/", {"seat": self.a3.id}, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(Booking.objects.get(seat=self.a3).user, self.alex)
