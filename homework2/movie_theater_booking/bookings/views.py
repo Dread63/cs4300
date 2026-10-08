@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -115,6 +116,8 @@ def seat_booking(request, movie_id):
     )
 
 
+# Signed out: to the sign-in page, then back here (AC-6).
+@login_required
 def booking_history(request):
     """My Bookings: the signed-in user's bookings, newest first (spec 003)."""
     # Only mine (AC-2); select_related loads movie and seat in the same query.

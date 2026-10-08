@@ -811,3 +811,15 @@ class BookingHistoryPageTests(TestCase):
         page = BeautifulSoup(response.content, "html.parser")
         self.assertIsNotNone(page.select_one(f'main a[href="{reverse("movie_list")}"]'))
         self.assertIsNone(page.select_one("main table"))
+
+    def test_booking_history_signed_out_redirects_to_login(self):
+        response = self.client.get(self.url)
+
+        # AC-6: sent to sign in, with My Bookings as where to come back to...
+        login_url = f'{reverse("login")}?next={self.url}'
+        self.assertRedirects(response, login_url)
+        # ...and signing in from there lands back on My Bookings.
+        response = self.client.post(
+            login_url, {"username": "sam", "password": "pw-sam-123", "next": self.url}
+        )
+        self.assertRedirects(response, self.url)
