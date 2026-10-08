@@ -38,11 +38,11 @@
 **Behave**
 - [x] **T20** — Scenarios "See seats for a movie" and "Browse seats signed out" · covers: AC-1, AC-8
 - [x] **T21** — Scenarios "Book an available seat" and "Seat already taken" · covers: AC-2, AC-3
-- [ ] **T22** — Scenario "Sign in" · covers: AC-12
+- [x] **T22** — Scenario "Sign in" · covers: AC-12
 
 ## Done when
-- [ ] Every acceptance criterion in `spec.md` has a passing test
-- [ ] Full suite green: `python manage.py test`
-- [ ] `python manage.py behave` passes
-- [ ] Coverage ≥ 80%
+- [x] Every acceptance criterion in `spec.md` has a passing test
+- [x] Full suite green: `python manage.py test`
+- [x] `python manage.py behave` passes
+- [x] Coverage ≥ 80%
 - [ ] `AI-USAGE.md` updated
