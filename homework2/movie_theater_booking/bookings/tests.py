@@ -722,3 +722,15 @@ class BookingAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.json()["user"], self.sam.id)
         self.assertEqual(Booking.objects.get(seat=self.a3).user, self.sam)
+
+    def test_bookings_api_signed_out_403(self):
+        # AC-6: no list, no single booking, no creating without signing in.
+        for method, url, data in (
+            ("get", "/api/bookings/", None),
+            ("get", f"/api/bookings/{self.sams_newer.id}/", None),
+            ("post", "/api/bookings/", {"seat": self.a3.id}),
+        ):
+            with self.subTest(method=method, url=url):
+                response = getattr(self.client, method)(url, data, format="json")
+                self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(Booking.objects.filter(seat=self.a3).exists())
