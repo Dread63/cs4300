@@ -25,7 +25,7 @@ Keep this log as you go, then copy the summary into your README.
 | 2026-10-08 | Setup | Download the SDD template; install coverage + behave-django; add `behave_django` to `INSTALLED_APPS`; write `requirements.txt`; add `CLAUDE.md` | Kept all of it. It caught that Django was missing from `pip freeze --local` (system site-packages) and added it by hand |
 | 2026-10-08 | 001 spec | Prompt 1 review of the 001 spec, then make the minimum valuable edits | Kept: exact AC-3 format (`Oct 22, 2021`, `155 min`), `<button disabled>` in AC-1, new AC-10 (newest first), answered the required-fields question. My editor overwrote some edits once; it restored them and kept my header |
 | 2026-10-08 | 001 T1 | Movie `__str__`, ordering, optional description (test first) | Kept. Also changed `description` from `CharField(200)` to `TextField(blank=True)` to match the spec |
-| 2026-10-08 | 001 T2–T5 | `MovieViewSet` + router; create, missing-title and missing-date tests | Kept. T3–T5 were verification tests: `ModelViewSet`/`ModelSerializer` already did the work. T2 also fixed my broken `views.py` |
+| 2026-10-08 | 001 T2–T5 | `MovieViewSet` + router; create, missing-title and missing-date tests | Kept. T3–T5 were verification tests: `ModelViewSet`/`ModelSerializer` already did the work. T2 also fixed broken `views.py` |
 | 2026-10-08 | 001 commits | Commit T1–T4 for me (I'd committed in the wrong repo) | Kept: it split the work into one commit per task and ran the tests at each one |
 | 2026-10-08 | 001 T6 | Reject duration ≤ 0 | Kept. Real red → green: `PositiveIntegerField` allows 0, so it added `MinValueValidator(1)` on the model and updated the plan to match |
 | 2026-10-08 | 001 T7–T10 | Retrieve, 404, PUT/PATCH, delete tests | Kept; all verification tests |

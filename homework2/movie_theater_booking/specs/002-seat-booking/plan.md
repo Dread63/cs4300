@@ -79,8 +79,11 @@ Dune". Sign-in uses Django's built-in auth views (`django.contrib.auth.urls`).
 |---|---|---|
 | §4 | unit | `test_seat_str_ordering_and_unique_number_per_movie` |
 | AC-1 | view + Behave | `test_seat_page_shows_available_and_booked`, `test_movie_list_book_now_links_to_seat_page`; "See seats for a movie" |
+| AC-2 | unit | `test_seat_book_creates_booking_and_sets_status` |
 | AC-2 | view + Behave | `test_book_seat_via_page` (redirect, message, Booking row, status, date); "Book an available seat" |
+| AC-3 | unit | `test_seat_book_taken_raises` |
 | AC-3 | view + API + Behave | `test_book_taken_seat_via_page_shows_error`, `test_book_taken_seat_via_api_409`; "Seat already taken" |
+| AC-4 | unit | `test_seat_book_race_raises_already_booked` (stale status; the DB refuses; `SeatAlreadyBooked` is raised) |
 | AC-4 | unit | `test_duplicate_booking_rejected_by_database` (a second `Booking` for the same seat raises `IntegrityError`) |
 | AC-4 | API | `test_duplicate_booking_returns_error_not_500` (a booking exists but the status still says available, as if another request won the race; the response is 409, not 500) |
 | AC-5 | API | `test_booking_user_is_request_user_not_request_data` |
@@ -92,6 +95,7 @@ Dune". Sign-in uses Django's built-in auth views (`django.contrib.auth.urls`).
 | AC-11 | API | `test_book_seat_via_api_201` |
 | AC-12 | view + Behave | `test_sign_in_and_out`, `test_sign_in_wrong_password`; "Sign in" |
 | AC-13 | view | `test_seat_page_empty_state` |
+| Open Q | unit | `test_admin_registers_models` |
 
 ## 6. Risks & decisions
 - **Double booking is a race.** `book()` checks `booking_status` first, so it can give the friendly
