@@ -15,3 +15,5 @@ class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = ["id", "movie", "seat", "user", "booking_date"]
+        # Set by Seat.book(), never by the client (spec 002 AC-5).
+        read_only_fields = ["movie", "user", "booking_date"]

@@ -1,8 +1,10 @@
 from django.shortcuts import render
-from rest_framework import serializers, viewsets
+from rest_framework import serializers, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from .models import Movie, Seat
-from .serializers import MovieSerializer, SeatSerializer
+from .serializers import BookingSerializer, MovieSerializer, SeatSerializer
 
 
 class MovieViewSet(viewsets.ModelViewSet):
@@ -29,6 +31,13 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):
                 raise serializers.ValidationError({"movie": ["Must be a movie id (a whole number)."]})
             seats = seats.filter(movie_id=movie_id)
         return seats
+
+    @action(detail=True, methods=["post"])
+    def book(self, request, pk=None):
+        """POST /api/seats/<id>/book/: book this seat for the signed-in user (AC-11)."""
+        # The user comes from the session, never from request data (AC-5).
+        booking = self.get_object().book(request.user)
+        return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
 
 
 def movie_list(request):

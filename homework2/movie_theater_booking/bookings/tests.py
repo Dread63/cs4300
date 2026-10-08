@@ -316,3 +316,23 @@ class SeatAPITests(APITestCase):
         # A number with no such movie isn't an error, just no seats.
         response = self.client.get("/api/seats/", {"movie": 9999})
         self.assertEqual((response.status_code, response.json()), (200, []))
+
+    def test_book_seat_via_api_201(self):
+        self.client.force_authenticate(self.sam)
+
+        response = self.client.post(f"/api/seats/{self.a1.id}/book/")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        booking = Booking.objects.get(seat=self.a1)
+        self.assertEqual(
+            response.json(),
+            {
+                "id": booking.id,
+                "movie": self.dune.id,
+                "seat": self.a1.id,
+                "user": self.sam.id,
+                "booking_date": date.today().isoformat(),
+            },
+        )
+        self.a1.refresh_from_db()
+        self.assertTrue(self.a1.booking_status)
