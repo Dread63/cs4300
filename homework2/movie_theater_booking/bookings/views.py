@@ -49,7 +49,9 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
 
 
-class BookingViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class BookingViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     """The signed-in user's booking history at /api/bookings/ (spec 003)."""
 
     serializer_class = BookingSerializer

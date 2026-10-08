@@ -628,3 +628,30 @@ class BookingAPITests(APITestCase):
             [b["id"] for b in response.json()], [self.sams_newer.id, self.sams_older.id]
         )
         self.assertEqual({b["user"] for b in response.json()}, {self.sam.id})
+
+    def test_retrieve_own_booking(self):
+        self.client.force_authenticate(self.sam)
+
+        response = self.client.get(f"/api/bookings/{self.sams_newer.id}/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json(),
+            {
+                "id": self.sams_newer.id,
+                "movie": self.dune.id,
+                "seat": self.a1.id,
+                "user": self.sam.id,
+                "booking_date": date.today().isoformat(),
+            },
+        )
+
+    def test_cannot_retrieve_another_users_booking(self):
+        self.client.force_authenticate(self.sam)
+
+        response = self.client.get(f"/api/bookings/{self.alexs.id}/")
+
+        # AC-3: 404, exactly like an id that doesn't exist, so nothing about Alex leaks.
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.json(), self.client.get("/api/bookings/9999/").json())
+        self.assertNotIn("alex", response.content.decode())
