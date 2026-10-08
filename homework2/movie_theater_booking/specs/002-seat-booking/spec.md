@@ -164,4 +164,7 @@ A moviegoer who has picked a movie needs to see which seats are free and reserve
       `/api/bookings/` all call it. The plan names where it lives. If each copied the rules, a fix
       in one place (say, the AC-4 race) would leave the others broken, breaking AC-6.
 - [x] Can a booking be cancelled? → **No, out of scope for HW2.** It would need a second place that sets booking status back to available. Revisit only if time allows.
+- [ ] **`GET /api/seats/?movie=abc` returns 500** (found in T6: a non-numeric id crashes the
+      filter). Proposed: **400** with an error for `movie`, as a new AC-14 and one small task after T6.
+      An unknown numeric id (`?movie=9999`) returns 200 with an empty list.
 - [x] Who creates seats? → **Staff, in the Django admin**, plus seed data for the Render deploy (planned with deployment). Without seats there's nothing to book, so the page shows "No seats for this movie yet" (AC-13).

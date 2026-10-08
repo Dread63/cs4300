@@ -15,7 +15,7 @@
 - [x] **T5** — `book()` turns the DB's `IntegrityError` into `SeatAlreadyBooked` (stale status, as if another request won the race) · test: `test_seat_book_race_raises_already_booked` · covers: AC-4
 
 **API: `/api/seats/`**
-- [ ] **T6** — `SeatSerializer` + `movie`; read-only `SeatViewSet` + router; `?movie=` filter · tests: `test_list_seats_filtered_by_movie`, `test_list_all_seats` · covers: AC-10
+- [x] **T6** — `SeatSerializer` + `movie`; read-only `SeatViewSet` + router; `?movie=` filter · tests: `test_list_seats_filtered_by_movie`, `test_list_all_seats` · covers: AC-10
 - [ ] **T7** — `POST /api/seats/<id>/book/` → 201; `BookingSerializer` read-only `movie`/`user`/`booking_date` · test: `test_book_seat_via_api_201` · covers: AC-11
 - [ ] **T8** — Booking a taken seat via API → 409, including the race case · tests: `test_book_taken_seat_via_api_409`, `test_duplicate_booking_returns_error_not_500` · covers: AC-3, AC-4
 - [ ] **T9** — Signed out → 403; missing seat → 404 (GET and POST book) · tests: `test_book_via_api_signed_out_403`, `test_missing_seat_api_404` · covers: AC-8, AC-9

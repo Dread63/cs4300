@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework import viewsets
 
-from .models import Movie
-from .serializers import MovieSerializer
+from .models import Movie, Seat
+from .serializers import MovieSerializer, SeatSerializer
 
 
 class MovieViewSet(viewsets.ModelViewSet):
@@ -10,6 +10,22 @@ class MovieViewSet(viewsets.ModelViewSet):
 
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
+
+
+class SeatViewSet(viewsets.ReadOnlyModelViewSet):
+    """Seat availability at /api/seats/, optionally ?movie=<id> (spec 002 AC-10).
+
+    Read-only: seats are created in the admin (spec 002 §6).
+    """
+
+    serializer_class = SeatSerializer
+
+    def get_queryset(self):
+        seats = Seat.objects.all()
+        movie_id = self.request.query_params.get("movie")
+        if movie_id:
+            seats = seats.filter(movie_id=movie_id)
+        return seats
 
 
 def movie_list(request):

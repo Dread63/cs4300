@@ -9,7 +9,7 @@ class MovieSerializer(serializers.ModelSerializer):
 class SeatSerializer(serializers.ModelSerializer):
     class Meta:
         model = Seat
-        fields = ["id", "seat_number", "booking_status"]
+        fields = ["id", "movie", "seat_number", "booking_status"]
 
 class BookingSerializer(serializers.ModelSerializer):
     class Meta:

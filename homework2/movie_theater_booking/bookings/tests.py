@@ -270,3 +270,40 @@ class BookingModelTests(TestCase):
         self.assertEqual(list(Booking.objects.all()), [winner])
         self.a1.refresh_from_db()
         self.assertFalse(self.a1.booking_status)
+
+
+class SeatAPITests(APITestCase):
+    """The /api/seats/ endpoints (spec 002 AC-3 to AC-11)."""
+
+    def setUp(self):
+        self.sam = User.objects.create_user("sam", password="pw-sam-123")
+        self.dune = Movie.objects.create(
+            title="Dune", release_date=date(2021, 10, 22), duration=155
+        )
+        self.up = Movie.objects.create(
+            title="Up", release_date=date(2009, 5, 29), duration=96
+        )
+        self.a1, self.a2, self.a3 = (
+            Seat.objects.create(movie=self.dune, seat_number=n) for n in ("A1", "A2", "A3")
+        )
+        self.a2.book(self.sam)
+        self.up_a1 = Seat.objects.create(movie=self.up, seat_number="A1")
+
+    def test_list_seats_filtered_by_movie(self):
+        response = self.client.get("/api/seats/", {"movie": self.dune.id})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json(),
+            [
+                {"id": self.a1.id, "movie": self.dune.id, "seat_number": "A1", "booking_status": False},
+                {"id": self.a2.id, "movie": self.dune.id, "seat_number": "A2", "booking_status": True},
+                {"id": self.a3.id, "movie": self.dune.id, "seat_number": "A3", "booking_status": False},
+            ],
+        )
+
+    def test_list_all_seats(self):
+        response = self.client.get("/api/seats/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 4)

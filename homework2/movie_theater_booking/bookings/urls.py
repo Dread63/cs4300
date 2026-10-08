@@ -6,6 +6,7 @@ from . import views
 # The router generates the list (/movies/) and detail (/movies/<id>/) routes for each viewset.
 router = DefaultRouter()
 router.register("movies", views.MovieViewSet)
+router.register("seats", views.SeatViewSet, basename="seat")
 
 urlpatterns = [
     path("", views.movie_list, name="movie_list"),
