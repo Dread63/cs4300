@@ -31,7 +31,7 @@
 - [x] **T14** — Missing movie → 404; movie with no seats → empty state · tests: `test_seat_page_missing_movie_404`, `test_seat_page_empty_state` · covers: AC-9, AC-13
 - [x] **T15** — Signed out: available seats show "Sign in to book" · test: `test_signed_out_sees_sign_in_to_book` · covers: AC-8
 - [x] **T16** — POST books via `Seat.book()`, redirects back, shows "Seat A1 booked for Dune" (messages in `base.html`) · tests: `test_book_seat_via_page`, `test_book_missing_seat_via_page_404` · covers: AC-2, AC-9
-- [ ] **T17** — POST on a taken seat shows "Seat A2 is already booked"; signed-out POST → sign-in page · tests: `test_book_taken_seat_via_page_shows_error`, `test_signed_out_post_redirects_to_login` · covers: AC-3, AC-8
+- [x] **T17** — POST on a taken seat shows "Seat A2 is already booked"; signed-out POST → sign-in page · tests: `test_book_taken_seat_via_page_shows_error`, `test_signed_out_post_redirects_to_login` · covers: AC-3, AC-8
 - [ ] **T18** — Page and API refuse each other's bookings · tests: `test_seat_booked_via_page_refused_via_seats_api`, `test_seat_booked_via_api_refused_via_page` · covers: AC-6 (likely verification tests)
 - [ ] **T19** — "Book Now" on the movie list becomes a link to `book_seat`; update 001's Behave step for `<a>` · test: `test_movie_list_book_now_links_to_seat_page` · covers: AC-1
 

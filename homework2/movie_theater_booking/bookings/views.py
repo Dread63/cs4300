@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.views import redirect_to_login
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from rest_framework import serializers, status, viewsets
@@ -57,13 +58,20 @@ def seat_booking(request, movie_id):
     """The seat booking page for one movie: see which seats are free, and book one (spec 002)."""
     movie = get_object_or_404(Movie, pk=movie_id)
     if request.method == "POST":
+        # Viewing is public; booking needs a signed-in user, then back to this page (AC-8).
+        if not request.user.is_authenticated:
+            return redirect_to_login(request.path)
         seat_id = request.POST.get("seat", "")
         if not seat_id.isdecimal():  # junk would crash the lookup (500); it's no such seat
             raise Http404("No such seat")
         # Looking up through movie.seats means another movie's seat id is also a 404.
         seat = get_object_or_404(movie.seats, pk=seat_id)
-        seat.book(request.user)
-        messages.success(request, f"Seat {seat.seat_number} booked for {movie.title}")
+        try:
+            seat.book(request.user)
+        except SeatAlreadyBooked as taken:
+            messages.error(request, str(taken))  # AC-3: same message as the API's 409
+        else:
+            messages.success(request, f"Seat {seat.seat_number} booked for {movie.title}")
         # Redirect after POST, so refreshing the page doesn't resubmit the booking (AC-2).
         return redirect("book_seat", movie_id=movie.id)
     return render(

@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 from pathlib import Path
 
+from django.contrib.messages import constants as message_constants
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -122,6 +124,9 @@ STATIC_URL = 'static/'
 # Where sign-in and sign-out land when there's no ?next= page to return to.
 LOGIN_REDIRECT_URL = 'movie_list'
 LOGOUT_REDIRECT_URL = 'movie_list'
+
+# Django tags error messages "error"; Bootstrap's red alert class is "alert-danger".
+MESSAGE_TAGS = {message_constants.ERROR: 'danger'}
 
 
 # Email

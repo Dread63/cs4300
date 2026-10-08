@@ -526,3 +526,23 @@ class SeatBookingPageTests(TestCase):
             with self.subTest(seat=seat):
                 self.assertEqual(self.client.post(self.url, {"seat": seat}).status_code, 404)
         self.assertEqual(Booking.objects.count(), 1)  # only setUp's A2
+
+    def test_book_taken_seat_via_page_shows_error(self):
+        self.client.force_login(self.sam)
+
+        response = self.client.post(self.url, {"seat": self.seats["A2"].id}, follow=True)
+
+        # AC-3: back on Dune's page with a red error, and A2 still has just its one booking.
+        self.assertRedirects(response, self.url)
+        page = BeautifulSoup(response.content, "html.parser")
+        self.assertEqual(page.select_one(".alert-danger").get_text(strip=True), "Seat A2 is already booked")
+        self.assertEqual(Booking.objects.filter(seat=self.seats["A2"]).count(), 1)
+
+    def test_signed_out_post_redirects_to_login(self):
+        response = self.client.post(self.url, {"seat": self.seats["A1"].id})
+
+        # AC-8: a hand-made POST without signing in is sent to sign in, then back here.
+        self.assertRedirects(
+            response, f'{reverse("login")}?next={self.url}', fetch_redirect_response=False
+        )
+        self.assertFalse(Booking.objects.filter(seat=self.seats["A1"]).exists())
