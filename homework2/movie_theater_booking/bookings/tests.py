@@ -734,3 +734,15 @@ class BookingAPITests(APITestCase):
                 response = getattr(self.client, method)(url, data, format="json")
                 self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertFalse(Booking.objects.filter(seat=self.a3).exists())
+
+    def test_bookings_cannot_be_changed_or_deleted_405(self):
+        self.client.force_authenticate(self.sam)
+        url = f"/api/bookings/{self.sams_newer.id}/"
+
+        # AC-9: bookings are never changed or cancelled through the API.
+        for method in ("put", "patch", "delete"):
+            with self.subTest(method=method):
+                response = getattr(self.client, method)(url, {"seat": self.a3.id}, format="json")
+                self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.sams_newer.refresh_from_db()  # still there, still A1
+        self.assertEqual(self.sams_newer.seat, self.a1)

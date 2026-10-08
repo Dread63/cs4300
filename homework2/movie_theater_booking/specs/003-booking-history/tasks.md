@@ -18,7 +18,7 @@
 - [x] **T6** — Bad seat → 400: missing, `"abc"`, 9999 · test: `test_create_booking_bad_seat_400` · covers: AC-7 (likely verification)
 - [x] **T7** — `user` in request data is ignored · test: `test_create_booking_ignores_user_in_request_data` · covers: AC-7 (likely verification)
 - [x] **T8** — Signed out → 403 for GET and POST · test: `test_bookings_api_signed_out_403` · covers: AC-6 (likely verification)
-- [ ] **T9** — `PUT`/`PATCH`/`DELETE` → 405, booking unchanged · test: `test_bookings_cannot_be_changed_or_deleted_405` · covers: AC-9 (likely verification)
+- [x] **T9** — `PUT`/`PATCH`/`DELETE` → 405, booking unchanged · test: `test_bookings_cannot_be_changed_or_deleted_405` · covers: AC-9 (likely verification)
 
 **My Bookings page**
 - [ ] **T10** — `booking_history` view + `/bookings/` URL + template (movie, seat, date; only mine; newest first; extends `base.html`) · tests: `test_booking_history_shows_movie_seat_and_date`, `test_booking_history_page_only_shows_own`, `test_booking_history_uses_base_template` · covers: AC-1, AC-2, AC-4, AC-8
