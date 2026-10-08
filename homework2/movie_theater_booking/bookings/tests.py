@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from django.contrib import admin
 from django.contrib.auth.models import User
@@ -245,6 +245,18 @@ class BookingModelTests(TestCase):
         # AC-4: even code that skips every check can't save a second booking of A1.
         with self.assertRaises(IntegrityError):
             Booking.objects.create(movie=self.dune, seat=self.a1, user=self.alex)
+
+    def test_booking_ordering_newest_first(self):
+        a2 = Seat.objects.create(movie=self.dune, seat_number="A2")
+        a3 = Seat.objects.create(movie=self.dune, seat_number="A3")
+        yesterdays = self.a1.book(self.sam)
+        # booking_date is set automatically, so backdate it directly in the database.
+        Booking.objects.filter(pk=yesterdays.pk).update(booking_date=date.today() - timedelta(days=1))
+        todays_first = a2.book(self.sam)
+        todays_second = a3.book(self.sam)
+
+        # spec 003 AC-8: newest date first; the same day, newest booking first.
+        self.assertEqual(list(Booking.objects.all()), [todays_second, todays_first, yesterdays])
 
     def test_seat_book_creates_booking_and_sets_status(self):
         booking = self.a1.book(self.sam)

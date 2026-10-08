@@ -8,7 +8,7 @@
 > Codex ticks the box when the task's tests pass. **You** commit.
 
 **Model**
-- [ ] **T1** — `Booking.Meta.ordering` newest first + migration · test: `test_booking_ordering_newest_first` · covers: AC-8
+- [x] **T1** — `Booking.Meta.ordering` newest first + migration · test: `test_booking_ordering_newest_first` · covers: AC-8
 
 **API: `/api/bookings/`**
 - [ ] **T2** — `BookingViewSet` (list) + router + `IsAuthenticated`; `get_queryset()` is only my bookings · test: `test_list_bookings_only_returns_own` (also checks newest first) · covers: AC-2, AC-8

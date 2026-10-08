@@ -74,6 +74,10 @@ class Booking(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     booking_date = models.DateField("booking date", auto_now_add=True)
 
+    class Meta:
+        # Newest first for the history page and API; same day, newest booking first (003 AC-8).
+        ordering = ["-booking_date", "-id"]
+
     def __str__(self):
         return f"{self.user}: {self.seat}"
 
