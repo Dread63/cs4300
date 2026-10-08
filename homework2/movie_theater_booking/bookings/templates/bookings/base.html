@@ -12,6 +12,9 @@
             <span class="navbar-brand">🎬 Movie Theater</span>
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link" href="{% url 'movie_list' %}">Movies</a></li>
+                {% if user.is_authenticated %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'booking_history' %}">My Bookings</a></li>
+                {% endif %}
             </ul>
             {% if user.is_authenticated %}
             {# Sign-out must be a POST in Django 5+, so it's a small form. #}

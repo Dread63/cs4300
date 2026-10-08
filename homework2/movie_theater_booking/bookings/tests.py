@@ -823,3 +823,16 @@ class BookingHistoryPageTests(TestCase):
             login_url, {"username": "sam", "password": "pw-sam-123", "next": self.url}
         )
         self.assertRedirects(response, self.url)
+
+    def test_navbar_my_bookings_only_when_signed_in(self):
+        def navbar_links(response):
+            nav = BeautifulSoup(response.content, "html.parser").select_one("nav")
+            return {a.get_text(strip=True): a["href"] for a in nav.find_all("a")}
+
+        # AC-4: signed out, there's nothing to link to yet.
+        self.assertNotIn("My Bookings", navbar_links(self.client.get(reverse("movie_list"))))
+
+        self.client.force_login(self.sam)
+        links = navbar_links(self.client.get(reverse("movie_list")))
+        self.assertEqual(links["Movies"], reverse("movie_list"))
+        self.assertEqual(links["My Bookings"], reverse("booking_history"))
