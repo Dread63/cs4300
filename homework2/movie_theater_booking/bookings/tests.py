@@ -336,3 +336,24 @@ class SeatAPITests(APITestCase):
         )
         self.a1.refresh_from_db()
         self.assertTrue(self.a1.booking_status)
+
+    def test_book_taken_seat_via_api_409(self):
+        self.client.force_authenticate(self.sam)
+
+        response = self.client.post(f"/api/seats/{self.a2.id}/book/")
+
+        # AC-3: A2 was booked in setUp; refused with 409 and the same message as the page.
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.json(), {"detail": "Seat A2 is already booked"})
+        self.assertEqual(Booking.objects.filter(seat=self.a2).count(), 1)
+
+    def test_duplicate_booking_returns_error_not_500(self):
+        # AC-4: another request won the race; A1's booking exists but its status still
+        # says available, so the check passes and the database refuses the save.
+        Booking.objects.create(movie=self.dune, seat=self.a1, user=self.sam)
+        self.client.force_authenticate(self.sam)
+
+        response = self.client.post(f"/api/seats/{self.a1.id}/book/")
+
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.json(), {"detail": "Seat A1 is already booked"})

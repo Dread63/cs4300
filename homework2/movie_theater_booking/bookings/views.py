@@ -3,7 +3,7 @@ from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Movie, Seat
+from .models import Movie, Seat, SeatAlreadyBooked
 from .serializers import BookingSerializer, MovieSerializer, SeatSerializer
 
 
@@ -36,7 +36,11 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):
     def book(self, request, pk=None):
         """POST /api/seats/<id>/book/: book this seat for the signed-in user (AC-11)."""
         # The user comes from the session, never from request data (AC-5).
-        booking = self.get_object().book(request.user)
+        try:
+            booking = self.get_object().book(request.user)
+        except SeatAlreadyBooked as taken:
+            # 409 Conflict: the request is fine, but the seat's current state refuses it (AC-3).
+            return Response({"detail": str(taken)}, status=status.HTTP_409_CONFLICT)
         return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
 
 
