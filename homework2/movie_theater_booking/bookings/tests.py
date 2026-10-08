@@ -140,3 +140,12 @@ class MovieAPITests(APITestCase):
 
         self.dune.refresh_from_db()
         self.assertEqual((self.dune.title, self.dune.duration), ("Dune: Part One", 155))
+
+    def test_delete_movie(self):
+        url = f"/api/movies/{self.dune.id}/"
+
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Movie.objects.filter(id=self.dune.id).exists())
+        self.assertEqual(self.client.get(url).status_code, status.HTTP_404_NOT_FOUND)
