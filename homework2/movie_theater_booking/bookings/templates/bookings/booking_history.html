@@ -1,0 +1,21 @@
+{% extends 'bookings/base.html' %}
+{% block title %}My Bookings{% endblock %}
+{% block content %}
+<h2 class="mb-3">My Bookings</h2>
+<div class="table-responsive">
+    <table class="table table-striped align-middle bg-white">
+        <thead>
+            <tr><th scope="col">Movie</th><th scope="col">Seat</th><th scope="col">Booked on</th></tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr data-booking="{{ booking.id }}">
+                <td>{{ booking.movie.title }}</td>
+                <td>{{ booking.seat.seat_number }}</td>
+                <td>{{ booking.booking_date|date:"M j, Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

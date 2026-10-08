@@ -7,6 +7,7 @@ from django.db import IntegrityError
 from django.test import TestCase
 from bs4 import BeautifulSoup
 from django.urls import reverse
+from django.utils.dateformat import format as format_date
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -746,3 +747,55 @@ class BookingAPITests(APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
         self.sams_newer.refresh_from_db()  # still there, still A1
         self.assertEqual(self.sams_newer.seat, self.a1)
+
+
+class BookingHistoryPageTests(TestCase):
+    """The My Bookings page at /bookings/ (spec 003)."""
+
+    def setUp(self):
+        self.sam = User.objects.create_user("sam", password="pw-sam-123")
+        self.alex = User.objects.create_user("alex", password="pw-alex-123")
+        dune = Movie.objects.create(title="Dune", release_date=date(2021, 10, 22), duration=155)
+        up = Movie.objects.create(title="Up", release_date=date(2009, 5, 29), duration=96)
+        # Sam: Up A1 yesterday, Dune A1 today. Alex: Dune A2.
+        self.yesterday = date.today() - timedelta(days=1)
+        self.sams_older = Seat.objects.create(movie=up, seat_number="A1").book(self.sam)
+        Booking.objects.filter(pk=self.sams_older.pk).update(booking_date=self.yesterday)
+        self.sams_newer = Seat.objects.create(movie=dune, seat_number="A1").book(self.sam)
+        Seat.objects.create(movie=dune, seat_number="A2").book(self.alex)
+        self.url = reverse("booking_history")
+
+    def booking_rows(self, response):
+        """Each booking row on the page, in page order, as a list of its cell texts."""
+        page = BeautifulSoup(response.content, "html.parser")
+        return [[td.get_text(strip=True) for td in tr.find_all("td")] for tr in page.select("tr[data-booking]")]
+
+    def test_booking_history_shows_movie_seat_and_date(self):
+        self.client.force_login(self.sam)
+
+        rows = self.booking_rows(self.client.get(self.url))
+
+        # AC-1: movie, seat and date, in 001's date format.
+        self.assertEqual(rows[0], ["Dune", "A1", format_date(date.today(), "M j, Y")])
+
+    def test_booking_history_page_only_shows_own(self):
+        self.client.force_login(self.sam)
+
+        rows = self.booking_rows(self.client.get(self.url))
+
+        # AC-2: only Sam's two, none of Alex's; AC-8: newest first.
+        self.assertEqual(
+            rows,
+            [
+                ["Dune", "A1", format_date(date.today(), "M j, Y")],
+                ["Up", "A1", format_date(self.yesterday, "M j, Y")],
+            ],
+        )
+
+    def test_booking_history_uses_base_template(self):
+        self.client.force_login(self.sam)
+
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(response, "bookings/booking_history.html")
+        self.assertTemplateUsed(response, "bookings/base.html")

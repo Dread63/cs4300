@@ -113,3 +113,10 @@ def seat_booking(request, movie_id):
     return render(
         request, "bookings/seat_booking.html", {"movie": movie, "seats": movie.seats.all()}
     )
+
+
+def booking_history(request):
+    """My Bookings: the signed-in user's bookings, newest first (spec 003)."""
+    # Only mine (AC-2); select_related loads movie and seat in the same query.
+    bookings = Booking.objects.filter(user=request.user).select_related("movie", "seat")
+    return render(request, "bookings/booking_history.html", {"bookings": bookings})
