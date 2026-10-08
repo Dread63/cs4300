@@ -45,4 +45,4 @@
 - [x] Full suite green: `python manage.py test`
 - [x] `python manage.py behave` passes
 - [x] Coverage ≥ 80%
-- [ ] `AI-USAGE.md` updated
+- [x] `AI-USAGE.md` updated

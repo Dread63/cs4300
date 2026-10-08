@@ -11,7 +11,8 @@ Keep this log as you go, then copy the summary into your README.
   Codex with the same SDD template; `CLAUDE.md` imports `AGENTS.md` so it follows the same rules.
 - **Used for:** analyzing where my project stood against the HW2 requirements; downloading the SDD
   template; installing test tools (`coverage`, `behave-django`) and writing `requirements.txt`;
-  reviewing my specs; making small spec edits I asked for; test-first implementation of each task
+  reviewing my specs; making small spec edits I asked for; turning my spec decisions into
+  acceptance criteria; drafting plans and task lists for me to approve; test-first implementation of each task
   (tests, models, viewsets, URLs, templates, Behave scenarios); splitting my uncommitted work into
   one commit per task.
 - **How I used the output:** I made the spec decisions (or approved the ones it proposed). It
@@ -31,3 +32,12 @@ Keep this log as you go, then copy the summary into your README.
 | 2026-10-08 | 001 T7–T10 | Retrieve, 404, PUT/PATCH, delete tests | Kept; all verification tests |
 | 2026-10-08 | 001 T11–T13 | `base.html` (Bootstrap + navbar), `movie_list` view/template, date/duration, empty state | Kept |
 | 2026-10-08 | 001 T14–T15 | Behave scenarios for AC-1 and AC-2 | Kept. 13 unit tests + 2 scenarios pass; 100% coverage of `bookings` |
+| 2026-10-08 | 002 spec | Ask me the key decisions, then write them into the 002 spec | I chose: seats belong to a movie; text seat numbers like "A1"; taken seat = API 409 + page error; signed out can view but must sign in to book. It filled in the remaining TODOs as defaults (stay on the page after booking, `/api/seats/<id>/book/`, built-in sign-in with admin-created accounts, AC-8/9/12/13) for me to override |
+| 2026-10-08 | 002 plan | Prompt 2: draft the plan | Approved as drafted: `Seat.movie`, `Booking.seat` as `OneToOneField`, one shared `Seat.book()` model method (rejected: rules in the serializer, which would duplicate them for the page) |
+| 2026-10-08 | 002 tasks | Prompt 3: break the plan into tasks | Kept 22 tasks, models → API → admin/sign-in → page → Behave |
+| 2026-10-08 | 002 T1–T5 | Seat/Booking model changes and `Seat.book()`: happy path, taken seat, race | Kept. Each was a real red → green; T4 showed the raw `IntegrityError` before the check, T5 caught it and re-raised `SeatAlreadyBooked` |
+| 2026-10-08 | 002 T6, T6a | `/api/seats/` with `?movie=` filter | Kept. It found that `?movie=abc` returned 500 and put it in Open Questions instead of fixing it silently; I chose 400, which became AC-14 |
+| 2026-10-08 | 002 T7–T10 | `book` action: 201, 409 (incl. race), 403 signed out, 404, user ignored | Kept. T9 fixed a 500 for signed-out POSTs that T7 left open (and flagged); T10 was a verification test |
+| 2026-10-08 | 002 T11–T12 | Admin registration; sign in/out with Django's auth views | Kept |
+| 2026-10-08 | 002 T13–T19 | Seat booking page: availability, 404/empty state, sign-in link, booking form, errors, page ↔ API cross-checks, real "Book Now" link | Kept. In T16 it probed bad input and found junk `seat` values crashed the page (500); fixed to 404 per spec §5 and added the test to the plan. T19 broke a 001 Behave step, as the plan predicted, and it updated the step |
+| 2026-10-08 | 002 T20–T22 | Behave scenarios for AC-1, 2, 3, 8, 12 | Kept. It wrote a bogus placeholder line in one step and replaced it before running. 42 unit tests + 8 scenarios pass; 100% coverage of `bookings` |
