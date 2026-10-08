@@ -1,6 +1,8 @@
 from datetime import date
 
 from django.test import TestCase
+from rest_framework import status
+from rest_framework.test import APITestCase
 
 from .models import Movie
 
@@ -21,3 +23,34 @@ class MovieModelTests(TestCase):
         self.assertEqual(list(Movie.objects.all()), [dune, up])
         # §4: description is optional, so a blank one passes validation.
         dune.full_clean()
+
+
+class MovieAPITests(APITestCase):
+    """The /api/movies/ endpoints (spec 001 AC-4 to AC-8)."""
+
+    def setUp(self):
+        self.dune = Movie.objects.create(
+            title="Dune",
+            description="Spice.",
+            release_date=date(2021, 10, 22),
+            duration=155,
+        )
+        self.up = Movie.objects.create(
+            title="Up", release_date=date(2009, 5, 29), duration=96
+        )
+
+    def test_list_movies(self):
+        response = self.client.get("/api/movies/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 2)
+        self.assertEqual(
+            response.json()[0],
+            {
+                "id": self.dune.id,
+                "title": "Dune",
+                "description": "Spice.",
+                "release_date": "2021-10-22",
+                "duration": 155,
+            },
+        )
