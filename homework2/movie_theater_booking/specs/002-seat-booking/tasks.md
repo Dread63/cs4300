@@ -36,7 +36,7 @@
 - [x] **T19** — "Book Now" on the movie list becomes a link to `book_seat`; update 001's Behave step for `<a>` · test: `test_movie_list_book_now_links_to_seat_page` · covers: AC-1
 
 **Behave**
-- [ ] **T20** — Scenarios "See seats for a movie" and "Browse seats signed out" · covers: AC-1, AC-8
+- [x] **T20** — Scenarios "See seats for a movie" and "Browse seats signed out" · covers: AC-1, AC-8
 - [ ] **T21** — Scenarios "Book an available seat" and "Seat already taken" · covers: AC-2, AC-3
 - [ ] **T22** — Scenario "Sign in" · covers: AC-12
 
