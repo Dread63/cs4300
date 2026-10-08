@@ -98,3 +98,18 @@ class MovieAPITests(APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
                 self.assertIn("duration", response.json())
                 self.assertEqual(Movie.objects.count(), 2)  # nothing saved
+
+    def test_retrieve_movie(self):
+        response = self.client.get(f"/api/movies/{self.dune.id}/")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.json(),
+            {
+                "id": self.dune.id,
+                "title": "Dune",
+                "description": "Spice.",
+                "release_date": "2021-10-22",
+                "duration": 155,
+            },
+        )
