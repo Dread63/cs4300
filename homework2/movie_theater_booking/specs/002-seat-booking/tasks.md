@@ -10,7 +10,7 @@
 **Models: the booking rules live here (one place, AC-6)**
 - [x] **T1** — `Seat.movie` FK, `seat_number` → CharField(4), unique (movie, seat number), ordering, `__str__` + migration · test: `test_seat_str_ordering_and_unique_number_per_movie` · covers: §4, AC-10
 - [x] **T2** — `Booking.seat` → OneToOneField, `booking_date` auto, `__str__` + migration · test: `test_duplicate_booking_rejected_by_database` · covers: AC-4
-- [ ] **T3** — `SeatAlreadyBooked` + `Seat.book(user)`: creates the Booking (seat's movie, user, today) and sets status · test: `test_seat_book_creates_booking_and_sets_status` · covers: AC-2
+- [x] **T3** — `SeatAlreadyBooked` + `Seat.book(user)`: creates the Booking (seat's movie, user, today) and sets status · test: `test_seat_book_creates_booking_and_sets_status` · covers: AC-2
 - [ ] **T4** — `book()` refuses a booked seat; nothing changes · test: `test_seat_book_taken_raises` · covers: AC-3
 - [ ] **T5** — `book()` turns the DB's `IntegrityError` into `SeatAlreadyBooked` (stale status, as if another request won the race) · test: `test_seat_book_race_raises_already_booked` · covers: AC-4
 

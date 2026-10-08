@@ -234,3 +234,15 @@ class BookingModelTests(TestCase):
         # AC-4: even code that skips every check can't save a second booking of A1.
         with self.assertRaises(IntegrityError):
             Booking.objects.create(movie=self.dune, seat=self.a1, user=self.alex)
+
+    def test_seat_book_creates_booking_and_sets_status(self):
+        booking = self.a1.book(self.sam)
+
+        # AC-2: one booking, for me, for the seat's movie, dated today.
+        self.assertEqual(
+            (booking.user, booking.movie, booking.seat, booking.booking_date),
+            (self.sam, self.dune, self.a1, date.today()),
+        )
+        self.assertEqual(Booking.objects.count(), 1)
+        self.a1.refresh_from_db()
+        self.assertTrue(self.a1.booking_status)

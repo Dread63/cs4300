@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from django.core.validators import MinValueValidator
 # Create your models here.
@@ -37,6 +37,19 @@ class Seat(models.Model):
 
     def __str__(self):
         return f"{self.movie.title} {self.seat_number}"
+
+    def book(self, user):
+        """Book this seat for ``user`` and return the Booking.
+
+        The one shared booking operation: the seat page, /api/seats/ and /api/bookings/
+        all call this, so the rules live in one place (spec 002 AC-6).
+        """
+        # Booking and status are saved together or not at all, so they can't disagree.
+        with transaction.atomic():
+            booking = Booking.objects.create(movie=self.movie, seat=self, user=user)
+            self.booking_status = True
+            self.save(update_fields=["booking_status"])
+        return booking
 
 class Booking(models.Model):
     """A user's reservation of one seat. The user is always the signed-in user (spec 002 AC-5)."""
