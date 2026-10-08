@@ -1,7 +1,7 @@
 # Spec: Movie listings
 
 **Status:** Reviewed (worked example: change anything you'd do differently)
-**Author:** <your name>  **Date:** <YYYY-MM-DD>
+**Author:** Joshua Douglas **Date:** 10/8/2026
 
 ## 1. Problem
 Moviegoers need to see what's showing before they can book a seat. Staff need to add, update
@@ -28,7 +28,7 @@ Each acceptance criterion (AC-#) names the user story it checks, e.g., AC-1 (US-
 - Given the movies "Dune" and "Up" exist
 - When I open the movie list page
 - Then I see both titles, each with its description and a "Book Now" button
-- (The button is shown but disabled until feature 002 adds the seat booking page. 002 makes it a link.)
+- (The button is a `<button disabled>` until feature 002 adds the seat booking page. 002 makes it a link.)
 
 **AC-2 (US-1): Empty state**
 - Given no movies exist
@@ -38,7 +38,7 @@ Each acceptance criterion (AC-#) names the user story it checks, e.g., AC-1 (US-
 **AC-3 (US-2): Movie details shown**
 - Given "Dune" has a release date of 2021-10-22 and a duration of 155 minutes
 - When I view the movie list
-- Then Dune's release date and duration are shown in a readable format
+- Then Dune's row shows "Oct 22, 2021" and "155 min"
 
 **AC-4 (US-3): List via API**
 - Given two movies exist
@@ -73,6 +73,11 @@ Each acceptance criterion (AC-#) names the user story it checks, e.g., AC-1 (US-
 - (002 and 003 each add the same criterion, with its own test, for their page. 003 adds the
   My Bookings link to the navbar once that page exists.)
 
+**AC-10 (US-1): Newest first**
+- Given "Up" (released 2009-05-29) and "Dune" (released 2021-10-22) exist
+- When I open the movie list page, or a client sends `GET /api/movies/`
+- Then Dune is listed before Up
+
 ## 4. Data
 | Thing | Information | Rules |
 |---|---|---|
@@ -98,7 +103,7 @@ Each acceptance criterion (AC-#) names the user story it checks, e.g., AC-1 (US-
 ## 7. Open questions
 - [x] Duration in minutes or as `HH:MM`? → **Integer minutes.** Simpler to validate and test.
 - [x] Order of the list? → **By release date, newest first.**
-- [ ] TODO (decide): this example makes description optional and the other three fields required.
-      Do you agree? Could a movie be announced before it has a release date? A good answer says,
-      for each field, whether it's required, what the API returns when it's missing or invalid,
-      and which AC and test prove it. If you change a rule, update §4, AC-6, the plan and the tasks.
+- [x] Which fields are required? → **Keep §4 as written.** Title, release date and duration are
+      required; description is optional (may be omitted or blank). A missing or invalid required
+      field returns 400 with an error for that field (AC-6). Movies announced without a date are
+      out of scope, since newest-first ordering (AC-10) needs a date.

@@ -21,7 +21,7 @@ Each **Spec ref** names the acceptance criterion (AC-#) in [spec.md](spec.md) th
 | Movie | description | TextField | `blank=True` (optional) | AC-1 |
 | Movie | release_date | DateField | required | AC-3, AC-6 |
 | Movie | duration | PositiveIntegerField | required; minutes; > 0 (validator, because the field allows 0) | AC-3, AC-6 |
-| Movie | — | `Meta.ordering = ["-release_date"]`, `__str__` returns title | — | Open Q |
+| Movie | — | `Meta.ordering = ["-release_date"]`, `__str__` returns title | — | AC-10 |
 
 ## 3. Endpoints / views
 | Method | URL | View / ViewSet | Returns | Spec ref |
@@ -59,6 +59,7 @@ Each **Spec ref** names the acceptance criterion (AC-#) in [spec.md](spec.md) th
 | AC-7 | API | `test_update_movie`, `test_delete_movie` |
 | AC-8 | API | `test_retrieve_movie`, `test_get_missing_movie_404` |
 | AC-9 | view test | `test_movie_list_uses_base_template` (`assertTemplateUsed`) |
+| AC-10 | model test | `test_movie_str_and_ordering` (page and API both use `Meta.ordering`) |
 
 ## 6. Risks & decisions
 - Anyone can create, update or delete movies for now (see Out of scope). Say so in the README.
