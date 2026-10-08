@@ -22,7 +22,7 @@
 
 **My Bookings page**
 - [x] **T10** — `booking_history` view + `/bookings/` URL + template (movie, seat, date; only mine; newest first; extends `base.html`) · tests: `test_booking_history_shows_movie_seat_and_date`, `test_booking_history_page_only_shows_own`, `test_booking_history_uses_base_template` · covers: AC-1, AC-2, AC-4, AC-8
-- [ ] **T11** — Empty state with a link to Movies · test: `test_booking_history_empty_state` · covers: AC-5
+- [x] **T11** — Empty state with a link to Movies · test: `test_booking_history_empty_state` · covers: AC-5
 - [ ] **T12** — Signed out → sign-in page, then back (`@login_required`) · test: `test_booking_history_signed_out_redirects_to_login` · covers: AC-6
 - [ ] **T13** — "My Bookings" navbar link, only when signed in · test: `test_navbar_my_bookings_only_when_signed_in` · covers: AC-4
 

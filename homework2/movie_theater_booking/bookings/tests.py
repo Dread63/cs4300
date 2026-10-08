@@ -799,3 +799,15 @@ class BookingHistoryPageTests(TestCase):
 
         self.assertTemplateUsed(response, "bookings/booking_history.html")
         self.assertTemplateUsed(response, "bookings/base.html")
+
+    def test_booking_history_empty_state(self):
+        newcomer = User.objects.create_user("pat", password="pw-pat-123")
+        self.client.force_login(newcomer)
+
+        response = self.client.get(self.url)
+
+        # AC-5: a message and a way to go book something, instead of an empty table.
+        self.assertContains(response, "You haven't booked any seats yet")
+        page = BeautifulSoup(response.content, "html.parser")
+        self.assertIsNotNone(page.select_one(f'main a[href="{reverse("movie_list")}"]'))
+        self.assertIsNone(page.select_one("main table"))

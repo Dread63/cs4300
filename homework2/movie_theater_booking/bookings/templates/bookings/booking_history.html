@@ -2,6 +2,7 @@
 {% block title %}My Bookings{% endblock %}
 {% block content %}
 <h2 class="mb-3">My Bookings</h2>
+{% if bookings %}
 <div class="table-responsive">
     <table class="table table-striped align-middle bg-white">
         <thead>
@@ -18,4 +19,9 @@
         </tbody>
     </table>
 </div>
+{% else %}
+<div class="alert alert-info">
+    You haven't booked any seats yet. <a class="alert-link" href="{% url 'movie_list' %}">Browse movies</a>
+</div>
+{% endif %}
 {% endblock %}
