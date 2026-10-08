@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Movie, Seat, SeatAlreadyBooked
@@ -32,7 +33,8 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):
             seats = seats.filter(movie_id=movie_id)
         return seats
 
-    @action(detail=True, methods=["post"])
+    # Browsing seats is public; booking needs a signed-in user (AC-8).
+    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
     def book(self, request, pk=None):
         """POST /api/seats/<id>/book/: book this seat for the signed-in user (AC-11)."""
         # The user comes from the session, never from request data (AC-5).

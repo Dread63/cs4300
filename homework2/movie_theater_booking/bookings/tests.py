@@ -357,3 +357,20 @@ class SeatAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.json(), {"detail": "Seat A1 is already booked"})
+
+    def test_book_via_api_signed_out_403(self):
+        response = self.client.post(f"/api/seats/{self.a1.id}/book/")
+
+        # AC-8: 403 (not 401: DRF's session auth sends no WWW-Authenticate header).
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(Booking.objects.filter(seat=self.a1).exists())
+
+    def test_missing_seat_api_404(self):
+        self.client.force_authenticate(self.sam)
+
+        # AC-9: no seat 9999, whether you look it up or try to book it.
+        self.assertEqual(self.client.get("/api/seats/9999/").status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            self.client.post("/api/seats/9999/book/").status_code, status.HTTP_404_NOT_FOUND
+        )
+        self.assertEqual(Booking.objects.count(), 1)  # only setUp's A2
