@@ -2,6 +2,7 @@
 {% block title %}Movie List{% endblock %}
 {% block content %}
 <h2 class="mb-3">Available Movies</h2>
+{% if movies %}
 <ul class="list-group">
     {% for movie in movies %}
     <li class="list-group-item">
@@ -13,4 +14,7 @@
     </li>
     {% endfor %}
 </ul>
+{% else %}
+<div class="alert alert-info">No movies are showing right now.</div>
+{% endif %}
 {% endblock %}

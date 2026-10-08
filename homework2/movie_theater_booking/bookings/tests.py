@@ -177,3 +177,11 @@ class MovieListPageTests(TestCase):
 
         self.assertContains(response, "Oct 22, 2021")
         self.assertContains(response, "155 min")
+
+    def test_movie_list_empty_state(self):
+        Movie.objects.all().delete()
+
+        response = self.client.get(reverse("movie_list"))
+
+        self.assertContains(response, "No movies are showing right now")
+        self.assertNotContains(response, "list-group-item")
