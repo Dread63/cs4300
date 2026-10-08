@@ -29,4 +29,4 @@
 - [x] Every acceptance criterion in `spec.md` has a passing test
 - [x] `python manage.py test` and `python manage.py behave` pass
 - [x] Coverage ≥ 80% for `bookings`
-- [ ] `AI-USAGE.md` updated
+- [x] `AI-USAGE.md` updated

@@ -1,7 +1,7 @@
 # Spec: Seat booking
 
-**Status:** Draft: **you finish this spec**
-**Author:** <your name>  **Date:** <YYYY-MM-DD>
+**Status:** Draft, decisions made, ready for review
+**Author:** Joshua Douglas  **Date:** 2026-10-08
 
 > The user stories (US-#) and first acceptance criteria (AC-#) are started for you. Every `TODO` is a decision **you**
 > make. Compare with `001-movie-listings/spec.md` for the level of detail to aim for.
@@ -16,7 +16,8 @@ A moviegoer who has picked a movie needs to see which seats are free and reserve
 - **US-2:** As a moviegoer, I want to book an available seat, so that it's reserved for me.
 - **US-3:** As an API client, I want to check seat availability and book seats through `/api/seats/`.
   (HW2 also has `/api/bookings/` create bookings; see AC-6 and feature 003.)
-- TODO: anything else? (For example, can a moviegoer book more than one seat at a time?)
+- **US-4:** As a moviegoer, I want to sign in, so that my bookings are mine.
+- One seat per booking. To book two seats, book twice.
 
 ## 3. Acceptance criteria
 
@@ -29,12 +30,17 @@ A moviegoer who has picked a movie needs to see which seats are free and reserve
 **AC-2 (US-2): Book an available seat**
 - Given I am signed in and seat A1 is available for Dune
 - When I book A1
-- Then TODO: what does the user see, and what changes in the data?
+- Then I stay on Dune's seat booking page and see "Seat A1 booked for Dune", with A1 now shown
+  as unavailable
+- And one booking exists for A1 with me as the user, Dune as the movie and today as the booking
+  date, and A1's booking status is "booked"
 
 **AC-3 (US-2): Seat already taken**
 - Given seat A2 is already booked for Dune
 - When I try to book A2
-- Then TODO: what happens in the UI? What status code does the API return?
+- Then on the page I stay on Dune's seat booking page and see "Seat A2 is already booked"
+- And through the API the response is **409 Conflict** with that message
+- And nothing changes: A2 still has exactly one booking, the original one
 
 **AC-4 (US-2): No double booking, even at the same moment**
 - Given seat A1 is available for Dune
@@ -63,40 +69,99 @@ A moviegoer who has picked a movie needs to see which seats are free and reserve
 - When it renders
 - Then it extends `base.html`, with the same navbar as the movie list
 
-- TODO **AC-8:** What if the user isn't signed in?
-- TODO **AC-9:** What if the seat or movie doesn't exist?
-- TODO **AC-10+:** API criteria for `/api/seats/`: list, availability, booking.
+**AC-8 (US-1, US-4): Not signed in**
+- Given I am not signed in
+- When I open Dune's seat booking page
+- Then I can see which seats are available, and each available seat's "Book" button says
+  "Sign in to book" and takes me to the sign-in page
+- And `POST /api/seats/<id>/book/` without signing in returns **403** and creates no booking
+
+**AC-9 (US-1, US-3): Missing movie or seat**
+- Given no movie with id 9999 and no seat with id 9999 exist
+- When I open the seat booking page for movie 9999, or a client sends `GET /api/seats/9999/`
+  or `POST /api/seats/9999/book/`
+- Then each response is **404**, and no booking is created
+
+**AC-10 (US-3): List and check seats via API**
+- Given Dune has seats A1–A3 where A2 is booked, and Up has seat A1
+- When a client sends `GET /api/seats/?movie=<Dune's id>`
+- Then the response is 200 with exactly Dune's three seats in seat-number order, each with id,
+  movie, seat number and booking status (A2 `true`, the others `false`)
+- And `GET /api/seats/` with no filter lists every seat
+
+**AC-11 (US-3): Book via API**
+- Given I am signed in and Dune's seat A1 is available
+- When a client sends `POST /api/seats/<A1's id>/book/`
+- Then the response is **201** with the new booking (id, movie, seat, user, booking date)
+- And A1's booking status is now `true`
+
+**AC-12 (US-4): Sign in and out**
+- Given the user "sam" exists
+- When I click "Sign in" in the navbar, enter sam's username and password, and submit
+- Then I return to the page I came from, and the navbar shows "sam" and a "Sign out" button
+- And with a wrong password I stay on the sign-in page and see an error
+- (Accounts are created by staff in the Django admin. There is no sign-up page; see Out of scope.)
+
+**AC-13 (US-1): No seats yet**
+- Given "Up" has no seats
+- When I open Up's seat booking page
+- Then I see "No seats for this movie yet"
 
 ## 4. Data
 | Thing | Information | Rules |
 |---|---|---|
-| Seat | seat number, booking status | TODO: is the seat number unique? What format? Is booking status stored, or worked out from bookings? (See Open questions.) |
-| Booking | movie, seat, user, booking date | User is always the signed-in user (AC-5). No two bookings of the same seat, enforced by the database (AC-4). TODO: "the same seat" means the same seat, or the same seat *for the same movie*? |
+| Seat | movie | **Required.** Each seat belongs to one movie (see Open questions) |
+| Seat | seat number | **Required.** Text such as "A1", at most 4 characters; unique within its movie |
+| Seat | booking status | Stored: `false` (available) or `true` (booked). Starts `false`; only the booking operation sets it |
+| Booking | movie, seat, user, booking date | User is always the signed-in user (AC-5). Movie is always the seat's movie. Booking date is set automatically to the day it was made. At most one booking per seat, enforced by the database (AC-4); a seat already belongs to one movie, so this means one booking per seat per movie |
 
 ## 5. API / UI behavior
 | Action | Input | Success result | Failure result |
 |---|---|---|---|
-| View seats for a movie (page) | movie | TODO | TODO |
-| List seats (API) | TODO | TODO | TODO |
-| Book a seat (API + page) | TODO | TODO | TODO |
+| View seats for a movie (page) | movie id | page listing the movie's seats, each available or booked | 404 if no such movie |
+| Sign in / sign out (page) | username, password | back to the previous page, signed in / signed out | sign-in page with an error |
+| List seats (API) | optional `?movie=<id>` | 200, list | — |
+| Get one seat (API) | id | 200, seat | 404 |
+| Book a seat (page) | seat, signed-in user | message "Seat A1 booked for Dune" on the same page | "Seat A2 is already booked"; sign-in page if signed out; 404 if no such seat |
+| Book a seat (API) | seat id, signed-in user | 201, booking | 409 taken; 403 signed out; 404 no such seat |
 
 ## 6. Out of scope
-- TODO: e.g., payments, seat maps with rows and aisles, holding a seat for 10 minutes
+- Payments, seat maps with rows and aisles, holding a seat for 10 minutes
+- Booking several seats in one request
+- Creating, editing or deleting seats through the API. Seats are created in the Django admin (or
+  by seed data for the Render deploy); `/api/seats/` is read-only apart from booking
+- A sign-up page. Staff create accounts in the admin
+- Cancelling a booking (see Open questions)
 
 ## 7. Open questions
-- [ ] **The assignment's Seat model has no movie field.** Is a seat booked for *every* movie, or
+- [x] **The assignment's Seat model has no movie field.** Is a seat booked for *every* movie, or
       is availability per movie? How do the Seat and Booking models together answer that? Decide,
       and write down why.
-- [ ] **One source of truth for "is this seat taken?"** Seat has a booking status, and Booking
+      → **Each seat belongs to one movie** (Seat gets a movie field). Availability is per movie,
+      because Dune's A1 and Up's A1 are different seats. This keeps the assignment's
+      "booking status" field meaningful, and lets the database refuse a second booking of a seat
+      with a simple uniqueness rule on Booking's seat.
+- [x] **One source of truth for "is this seat taken?"** Seat has a booking status, and Booking
       also records that the seat is taken. If they disagree (a booking exists but the status says
       "available"), which one is right? Decide: is the status **stored** on Seat, or **worked out**
       from bookings each time? A good answer says: (1) whether availability is global or per
       (movie, seat), (2) which data is the source of truth, (3) if you store the status, every place
       that must update it (book, cancel, admin, delete) and how you keep them in step, and (4) which
       AC and test would catch them disagreeing.
-- [ ] **Where does "book a seat" live?** HW2 lets you book through `/api/seats/` *and*
+      → (1) Per (movie, seat), since each seat belongs to one movie. (2) **The Booking table is the
+      source of truth**: the database's one-booking-per-seat rule is what actually prevents double
+      booking. (3) Booking status is **stored** on Seat for the API and page to show, and only the
+      shared booking operation sets it, in the same database transaction as creating the Booking,
+      so both are saved or neither is. Cancelling is out of scope, so nothing else changes it;
+      seats created in the admin start available. (4) AC-2 and AC-11 check both the new Booking and
+      the status; AC-4's test saves a duplicate Booking directly and checks the status is unchanged.
+- [x] **Where does "book a seat" live?** HW2 lets you book through `/api/seats/` *and*
       `/api/bookings/` (built in 003), and the page books too. All three must follow the same rules
       (AC-6 here, AC-7 in 003). Decide which one operation they all call. A good answer names the single
       place the rules (seat free? signed in? who's the user?) live, and why copying them would break AC-6.
-- [ ] Can a booking be cancelled? If so, does that belong in this feature or in 003?
-- [ ] TODO
+      → **One booking operation** that takes the signed-in user and a seat, and either creates the
+      booking or reports "already booked". The page, `/api/seats/<id>/book/` and 003's
+      `/api/bookings/` all call it. The plan names where it lives. If each copied the rules, a fix
+      in one place (say, the AC-4 race) would leave the others broken, breaking AC-6.
+- [x] Can a booking be cancelled? → **No, out of scope for HW2.** It would need a second place that sets booking status back to available. Revisit only if time allows.
+- [x] Who creates seats? → **Staff, in the Django admin**, plus seed data for the Render deploy (planned with deployment). Without seats there's nothing to book, so the page shows "No seats for this movie yet" (AC-13).
