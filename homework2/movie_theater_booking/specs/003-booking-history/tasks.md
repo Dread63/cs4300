@@ -16,7 +16,7 @@
 - [x] **T4** — Create: `POST {"seat": id}` → 201 via `Seat.book(request.user)` in `perform_create()` · test: `test_create_booking_201` · covers: AC-7
 - [x] **T5** — Taken seat → 409: `SeatTaken` exception, drop DRF's auto `UniqueValidator` on `seat`; `/api/seats/<id>/book/` raises `SeatTaken` too · tests: `test_create_booking_taken_seat_409`, `test_seat_booked_via_seats_api_refused_via_bookings_api` (+ 002's `test_book_taken_seat_via_api_409` still green) · covers: AC-7
 - [x] **T6** — Bad seat → 400: missing, `"abc"`, 9999 · test: `test_create_booking_bad_seat_400` · covers: AC-7 (likely verification)
-- [ ] **T7** — `user` in request data is ignored · test: `test_create_booking_ignores_user_in_request_data` · covers: AC-7 (likely verification)
+- [x] **T7** — `user` in request data is ignored · test: `test_create_booking_ignores_user_in_request_data` · covers: AC-7 (likely verification)
 - [ ] **T8** — Signed out → 403 for GET and POST · test: `test_bookings_api_signed_out_403` · covers: AC-6 (likely verification)
 - [ ] **T9** — `PUT`/`PATCH`/`DELETE` → 405, booking unchanged · test: `test_bookings_cannot_be_changed_or_deleted_405` · covers: AC-9 (likely verification)
 

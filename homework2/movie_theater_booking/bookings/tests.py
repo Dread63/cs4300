@@ -710,3 +710,15 @@ class BookingAPITests(APITestCase):
                 self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
                 self.assertIn("seat", response.json())
         self.assertEqual(Booking.objects.count(), before)
+
+    def test_create_booking_ignores_user_in_request_data(self):
+        self.client.force_authenticate(self.sam)
+
+        # 002 AC-5 via AC-7: the client claims it's Alex's booking; it's Sam's.
+        response = self.client.post(
+            "/api/bookings/", {"seat": self.a3.id, "user": self.alex.id}, format="json"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.json()["user"], self.sam.id)
+        self.assertEqual(Booking.objects.get(seat=self.a3).user, self.sam)
