@@ -698,3 +698,15 @@ class BookingAPITests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(Booking.objects.get(seat=self.a3).user, self.alex)
+
+    def test_create_booking_bad_seat_400(self):
+        self.client.force_authenticate(self.sam)
+        before = Booking.objects.count()
+
+        # AC-7: no seat, not a number, or no such seat: bad input, an error for "seat".
+        for data in ({}, {"seat": "abc"}, {"seat": 9999}):
+            with self.subTest(data=data):
+                response = self.client.post("/api/bookings/", data, format="json")
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn("seat", response.json())
+        self.assertEqual(Booking.objects.count(), before)
