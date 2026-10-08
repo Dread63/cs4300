@@ -183,6 +183,15 @@ class MovieListPageTests(TestCase):
         self.assertContains(response, "Oct 22, 2021")
         self.assertContains(response, "155 min")
 
+    def test_movie_list_book_now_links_to_seat_page(self):
+        dune = Movie.objects.get(title="Dune")
+
+        response = self.client.get(reverse("movie_list"))
+
+        # spec 002 AC-1: "Book Now" takes me to that movie's seat booking page.
+        link = BeautifulSoup(response.content, "html.parser").find("a", string="Book Now")
+        self.assertEqual(link["href"], reverse("book_seat", args=[dune.id]))
+
     def test_movie_list_empty_state(self):
         Movie.objects.all().delete()
 

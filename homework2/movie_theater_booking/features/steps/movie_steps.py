@@ -40,7 +40,8 @@ def step_see_movie(context, title, description, button):
     items = [li for li in page.select("li.list-group-item") if li.h5.get_text(strip=True) == title]
     context.test.assertEqual(len(items), 1, f"expected one list item for {title!r}")
     context.test.assertIn(description, items[0].get_text())
-    context.test.assertIsNotNone(items[0].find("button", string=button))
+    # A link styled as a button counts: "Book Now" became an <a> in spec 002.
+    context.test.assertIsNotNone(items[0].find(["a", "button"], string=button))
 
 
 @then('I see "{text}"')
