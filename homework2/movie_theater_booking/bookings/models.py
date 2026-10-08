@@ -1,4 +1,4 @@
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
 from django.conf import settings
 from django.core.validators import MinValueValidator
 # Create your models here.
@@ -48,13 +48,19 @@ class Seat(models.Model):
         The one shared booking operation: the seat page, /api/seats/ and /api/bookings/
         all call this, so the rules live in one place (spec 002 AC-6).
         """
+        taken = SeatAlreadyBooked(f"Seat {self.seat_number} is already booked")
         # Booking and status are saved together or not at all, so they can't disagree.
         with transaction.atomic():
             # Ask the database, not this instance, which may be stale. This gives the
-            # friendly error; it can't stop a race on its own (see AC-4 below).
+            # friendly error, but two requests can both pass it before either saves...
             if Seat.objects.filter(pk=self.pk, booking_status=True).exists():
-                raise SeatAlreadyBooked(f"Seat {self.seat_number} is already booked")
-            booking = Booking.objects.create(movie=self.movie, seat=self, user=user)
+                raise taken
+            try:
+                booking = Booking.objects.create(movie=self.movie, seat=self, user=user)
+            except IntegrityError:
+                # ...so the one-to-one seat column is the real guard (AC-4). The loser gets
+                # the same answer as AC-3, and leaving atomic() rolls back its writes.
+                raise taken
             self.booking_status = True
             self.save(update_fields=["booking_status"])
         return booking

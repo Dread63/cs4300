@@ -257,3 +257,16 @@ class BookingModelTests(TestCase):
 
         # AC-3: nothing changes; A1 still has exactly one booking, the original one.
         self.assertEqual(list(Booking.objects.all()), [original])
+
+    def test_seat_book_race_raises_already_booked(self):
+        # Another request won the race: its booking exists, but this request already
+        # read A1 as available. Simulate that by saving a booking without the status.
+        winner = Booking.objects.create(movie=self.dune, seat=self.a1, user=self.sam)
+
+        with self.assertRaisesMessage(SeatAlreadyBooked, "Seat A1 is already booked"):
+            self.a1.book(self.alex)
+
+        # AC-4: still exactly one booking, and the losing request changed nothing.
+        self.assertEqual(list(Booking.objects.all()), [winner])
+        self.a1.refresh_from_db()
+        self.assertFalse(self.a1.booking_status)
