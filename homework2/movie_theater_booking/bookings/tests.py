@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 
 from django.db import IntegrityError
 from django.test import TestCase
+from bs4 import BeautifulSoup
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -432,3 +433,40 @@ class SignInTests(TestCase):
         self.assertTemplateUsed(response, "registration/login.html")
         self.assertTemplateUsed(response, "bookings/base.html")
         self.assertContains(response, "Please enter a correct username and password")
+
+
+class SeatBookingPageTests(TestCase):
+    """The seat booking page at /movies/<id>/seats/ (spec 002 AC-1 to AC-3, AC-6 to AC-9, AC-13)."""
+
+    def setUp(self):
+        self.sam = User.objects.create_user("sam", password="pw-sam-123")
+        self.dune = Movie.objects.create(
+            title="Dune", release_date=date(2021, 10, 22), duration=155
+        )
+        self.seats = {
+            n: Seat.objects.create(movie=self.dune, seat_number=n)
+            for n in ("A1", "A2", "A3", "A4", "A5")
+        }
+        self.seats["A2"].book(self.sam)
+        self.url = reverse("book_seat", args=[self.dune.id])
+
+    def seat_rows(self, response):
+        """Map each seat number on the page to its row's text."""
+        page = BeautifulSoup(response.content, "html.parser")
+        return {li["data-seat"]: li.get_text(" ", strip=True) for li in page.select("li[data-seat]")}
+
+    def test_seat_page_shows_available_and_booked(self):
+        response = self.client.get(self.url)
+
+        self.assertContains(response, "Dune")
+        rows = self.seat_rows(response)
+        self.assertEqual(list(rows), ["A1", "A2", "A3", "A4", "A5"])
+        self.assertIn("Booked", rows["A2"])
+        for n in ("A1", "A3", "A4", "A5"):
+            self.assertIn("Available", rows[n])
+
+    def test_seat_booking_uses_base_template(self):
+        response = self.client.get(self.url)
+
+        self.assertTemplateUsed(response, "bookings/seat_booking.html")
+        self.assertTemplateUsed(response, "bookings/base.html")

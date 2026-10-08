@@ -1,0 +1,19 @@
+{% extends 'bookings/base.html' %}
+{% block title %}Book a seat · {{ movie.title }}{% endblock %}
+{% block content %}
+<a class="small" href="{% url 'movie_list' %}">&larr; All movies</a>
+<h2 class="mt-2">{{ movie.title }}</h2>
+<p class="text-muted">{{ movie.release_date|date:"M j, Y" }} · {{ movie.duration }} min</p>
+<ul class="list-group">
+    {% for seat in seats %}
+    <li class="list-group-item d-flex justify-content-between align-items-center" data-seat="{{ seat.seat_number }}">
+        <span class="fw-semibold">{{ seat.seat_number }}</span>
+        {% if seat.booking_status %}
+        <span class="badge text-bg-secondary">Booked</span>
+        {% else %}
+        <span class="badge text-bg-success">Available</span>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

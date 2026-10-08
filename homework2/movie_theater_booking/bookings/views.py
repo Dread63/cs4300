@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -49,3 +49,11 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):
 def movie_list(request):
     """The movie list page; reads the same Movie data as the API (spec 001)."""
     return render(request, "bookings/movie_list.html", {"movies": Movie.objects.all()})
+
+
+def seat_booking(request, movie_id):
+    """The seat booking page for one movie: which seats are free (spec 002 AC-1)."""
+    movie = get_object_or_404(Movie, pk=movie_id)
+    return render(
+        request, "bookings/seat_booking.html", {"movie": movie, "seats": movie.seats.all()}
+    )
