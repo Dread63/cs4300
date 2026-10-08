@@ -1,12 +1,14 @@
 from datetime import date
 
+from django.contrib.auth.models import User
+
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import Movie, Seat
+from .models import Booking, Movie, Seat
 
 
 class MovieModelTests(TestCase):
@@ -211,3 +213,24 @@ class SeatModelTests(TestCase):
         # But not twice for the same movie; the database refuses it.
         with self.assertRaises(IntegrityError):
             Seat.objects.create(movie=self.dune, seat_number="A1")
+
+
+class BookingModelTests(TestCase):
+    """Data rules for Booking (spec 002 §4, AC-4)."""
+
+    def setUp(self):
+        self.sam = User.objects.create_user("sam", password="pw-sam-123")
+        self.alex = User.objects.create_user("alex", password="pw-alex-123")
+        self.dune = Movie.objects.create(
+            title="Dune", release_date=date(2021, 10, 22), duration=155
+        )
+        self.a1 = Seat.objects.create(movie=self.dune, seat_number="A1")
+
+    def test_duplicate_booking_rejected_by_database(self):
+        booking = Booking.objects.create(movie=self.dune, seat=self.a1, user=self.sam)
+
+        self.assertEqual(booking.booking_date, date.today())  # set automatically
+        self.assertEqual(str(booking), "sam: Dune A1")
+        # AC-4: even code that skips every check can't save a second booking of A1.
+        with self.assertRaises(IntegrityError):
+            Booking.objects.create(movie=self.dune, seat=self.a1, user=self.alex)

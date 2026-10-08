@@ -39,8 +39,14 @@ class Seat(models.Model):
         return f"{self.movie.title} {self.seat_number}"
 
 class Booking(models.Model):
+    """A user's reservation of one seat. The user is always the signed-in user (spec 002 AC-5)."""
+
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE)
-    seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
+    # One-to-one: the database refuses a second booking of a seat, even in a race (AC-4).
+    seat = models.OneToOneField(Seat, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    booking_date = models.DateField("booking date")
+    booking_date = models.DateField("booking date", auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user}: {self.seat}"
 
