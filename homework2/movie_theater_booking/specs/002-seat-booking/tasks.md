@@ -37,7 +37,7 @@
 
 **Behave**
 - [x] **T20** — Scenarios "See seats for a movie" and "Browse seats signed out" · covers: AC-1, AC-8
-- [ ] **T21** — Scenarios "Book an available seat" and "Seat already taken" · covers: AC-2, AC-3
+- [x] **T21** — Scenarios "Book an available seat" and "Seat already taken" · covers: AC-2, AC-3
 - [ ] **T22** — Scenario "Sign in" · covers: AC-12
 
 ## Done when

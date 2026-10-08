@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-from bookings.models import Movie, Seat
+from bookings.models import Booking, Movie, Seat
 
 
 def seat_numbers(text):
@@ -42,6 +42,30 @@ def step_signed_out(context):
     context.test.client.logout()
 
 
+@given('I am signed in as "{username}"')
+def step_signed_in(context, username):
+    user = User.objects.create_user(username, password=f"pw-{username}-123")
+    context.test.client.force_login(user)
+
+
+@when("I book seat {seat}")
+def step_book_seat(context, seat):
+    # Submit the seat's own Book form, as a click would.
+    form = seat_rows(context)[seat].find("form")
+    context.test.assertIsNotNone(form, f"no Book button for {seat}")
+    data = {i["name"]: i["value"] for i in form.find_all("input") if i["name"] != "csrfmiddlewaretoken"}
+    context.response = context.test.client.post(context.response.request["PATH_INFO"], data, follow=True)
+
+
+@when("I try to book seat {seat} anyway")
+def step_force_book_seat(context, seat):
+    # No form to submit (the seat shows as booked), so post its id directly.
+    target = Seat.objects.get(movie=context.movie, seat_number=seat)
+    context.response = context.test.client.post(
+        reverse("book_seat", args=[context.movie.id]), {"seat": target.id}, follow=True
+    )
+
+
 @when('I click "{link}" for "{title}"')
 def step_click_for_movie(context, link, title):
     page = BeautifulSoup(context.response.content, "html.parser")
@@ -51,8 +75,8 @@ def step_click_for_movie(context, link, title):
 
 @when('I open the seat booking page for "{title}"')
 def step_open_seat_page(context, title):
-    movie = Movie.objects.get(title=title)
-    context.response = context.test.client.get(reverse("book_seat", args=[movie.id]))
+    context.movie = Movie.objects.get(title=title)
+    context.response = context.test.client.get(reverse("book_seat", args=[context.movie.id]))
 
 
 @then('I am on the seat booking page for "{title}"')
@@ -81,3 +105,10 @@ def step_available_seats_offer(context, link):
     context.test.assertTrue(available)
     for li in available:
         context.test.assertIsNotNone(li.find("a", string=link), li["data-seat"])
+
+
+@then('seat {seat} for "{title}" is booked by "{username}"')
+def step_booked_by(context, seat, title, username):
+    # Exactly one booking for the seat, and it's this user's.
+    booking = Booking.objects.get(seat__movie__title=title, seat__seat_number=seat)
+    context.test.assertEqual(booking.user.username, username)
