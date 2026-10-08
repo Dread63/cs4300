@@ -591,3 +591,40 @@ class SeatBookingPageTests(TestCase):
 
         self.assertContains(response, "Seat A1 is already booked")
         self.assertEqual(Booking.objects.get(seat=a1).user, self.sam)
+
+
+class BookingAPITests(APITestCase):
+    """The /api/bookings/ endpoints (spec 003)."""
+
+    def setUp(self):
+        self.sam = User.objects.create_user("sam", password="pw-sam-123")
+        self.alex = User.objects.create_user("alex", password="pw-alex-123")
+        self.dune = Movie.objects.create(
+            title="Dune", release_date=date(2021, 10, 22), duration=155
+        )
+        self.up = Movie.objects.create(
+            title="Up", release_date=date(2009, 5, 29), duration=96
+        )
+        self.a1, self.a2, self.a3 = (
+            Seat.objects.create(movie=self.dune, seat_number=n) for n in ("A1", "A2", "A3")
+        )
+        self.up_a1 = Seat.objects.create(movie=self.up, seat_number="A1")
+        # Sam: Up A1 yesterday, Dune A1 today. Alex: Dune A2.
+        self.sams_older = self.up_a1.book(self.sam)
+        Booking.objects.filter(pk=self.sams_older.pk).update(
+            booking_date=date.today() - timedelta(days=1)
+        )
+        self.sams_newer = self.a1.book(self.sam)
+        self.alexs = self.a2.book(self.alex)
+
+    def test_list_bookings_only_returns_own(self):
+        self.client.force_authenticate(self.sam)
+
+        response = self.client.get("/api/bookings/")
+
+        # AC-2: only Sam's bookings, none of Alex's; AC-8: newest first.
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            [b["id"] for b in response.json()], [self.sams_newer.id, self.sams_older.id]
+        )
+        self.assertEqual({b["user"] for b in response.json()}, {self.sam.id})

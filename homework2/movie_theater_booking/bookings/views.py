@@ -2,12 +2,12 @@ from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from rest_framework import serializers, status, viewsets
+from rest_framework import mixins, serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Movie, Seat, SeatAlreadyBooked
+from .models import Booking, Movie, Seat, SeatAlreadyBooked
 from .serializers import BookingSerializer, MovieSerializer, SeatSerializer
 
 
@@ -47,6 +47,17 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):
             # 409 Conflict: the request is fine, but the seat's current state refuses it (AC-3).
             return Response({"detail": str(taken)}, status=status.HTTP_409_CONFLICT)
         return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
+
+
+class BookingViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """The signed-in user's booking history at /api/bookings/ (spec 003)."""
+
+    serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Only ever my bookings: every list and detail lookup goes through here (AC-2, AC-3).
+        return Booking.objects.filter(user=self.request.user)
 
 
 def movie_list(request):
