@@ -171,3 +171,9 @@ class MovieListPageTests(TestCase):
         self.assertTemplateUsed(response, "bookings/base.html")
         self.assertContains(response, "bootstrap.min.css")
         self.assertContains(response, f'href="{reverse("movie_list")}">Movies</a>', html=False)
+
+    def test_movie_list_shows_release_date_and_duration(self):
+        response = self.client.get(reverse("movie_list"))
+
+        self.assertContains(response, "Oct 22, 2021")
+        self.assertContains(response, "155 min")

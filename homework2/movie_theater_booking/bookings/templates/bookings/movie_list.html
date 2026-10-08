@@ -6,6 +6,7 @@
     {% for movie in movies %}
     <li class="list-group-item">
         <h5>{{ movie.title }}</h5>
+        <p class="text-muted small mb-2">{{ movie.release_date|date:"M j, Y" }} · {{ movie.duration }} min</p>
         <p>{{ movie.description }}</p>
         {# Disabled until feature 002 adds the seat booking page (spec 001 AC-1). #}
         <button class="btn btn-primary" disabled>Book Now</button>
