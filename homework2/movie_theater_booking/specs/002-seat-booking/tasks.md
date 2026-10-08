@@ -24,7 +24,7 @@
 
 **Admin and sign-in**
 - [x] **T11** — Register Movie, Seat, Booking in the admin · test: `test_admin_registers_models` · covers: Open Q (staff create seats)
-- [ ] **T12** — `django.contrib.auth.urls`, `registration/login.html`, redirect settings, navbar "Sign in" / "username · Sign out" · tests: `test_sign_in_and_out`, `test_sign_in_wrong_password` · covers: AC-12
+- [x] **T12** — `django.contrib.auth.urls`, `registration/login.html`, redirect settings, navbar "Sign in" / "username · Sign out" · tests: `test_sign_in_and_out`, `test_sign_in_wrong_password` · covers: AC-12
 
 **Seat booking page**
 - [ ] **T13** — `seat_booking` view + `book_seat` URL + template: seats with Available/Booked, extends `base.html` · tests: `test_seat_page_shows_available_and_booked`, `test_seat_booking_uses_base_template` · covers: AC-1, AC-7

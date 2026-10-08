@@ -19,5 +19,7 @@ from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Django's built-in sign-in/out views: /accounts/login/, /accounts/logout/ (spec 002 AC-12).
+    path('accounts/', include('django.contrib.auth.urls')),
     path('', include('bookings.urls')),
 ]

@@ -397,3 +397,38 @@ class AdminTests(TestCase):
         for model in (Movie, Seat, Booking):
             with self.subTest(model=model.__name__):
                 self.assertTrue(admin.site.is_registered(model))
+
+
+class SignInTests(TestCase):
+    """Sign in and out (spec 002 AC-12)."""
+
+    def setUp(self):
+        User.objects.create_user("sam", password="pw-sam-123")
+
+    def test_sign_in_and_out(self):
+        # The navbar's link carries the current page, so I come back to it.
+        page = self.client.get(reverse("movie_list"))
+        self.assertContains(page, f'href="{reverse("login")}?next=/"')
+
+        response = self.client.post(
+            reverse("login"), {"username": "sam", "password": "pw-sam-123", "next": "/"}
+        )
+        self.assertRedirects(response, "/")
+        page = self.client.get("/")
+        self.assertContains(page, "sam")
+        self.assertContains(page, "Sign out")
+        self.assertNotContains(page, "Sign in")
+
+        response = self.client.post(reverse("logout"))
+        self.assertRedirects(response, reverse("movie_list"))
+        self.assertContains(self.client.get("/"), "Sign in")
+
+    def test_sign_in_wrong_password(self):
+        response = self.client.post(
+            reverse("login"), {"username": "sam", "password": "wrong"}
+        )
+
+        self.assertEqual(response.status_code, 200)  # stays on the sign-in page
+        self.assertTemplateUsed(response, "registration/login.html")
+        self.assertTemplateUsed(response, "bookings/base.html")
+        self.assertContains(response, "Please enter a correct username and password")
