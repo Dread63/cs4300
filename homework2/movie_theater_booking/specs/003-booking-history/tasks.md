@@ -27,11 +27,11 @@
 - [x] **T13** — "My Bookings" navbar link, only when signed in · test: `test_navbar_my_bookings_only_when_signed_in` · covers: AC-4
 
 **Behave**
-- [ ] **T14** — Scenarios "See my bookings" (book a seat on the page, then open My Bookings) and "No bookings yet" · covers: AC-1, AC-5
+- [x] **T14** — Scenarios "See my bookings" (book a seat on the page, then open My Bookings) and "No bookings yet" · covers: AC-1, AC-5
 
 ## Done when
-- [ ] Every acceptance criterion in `spec.md` has a passing test
-- [ ] Full suite green: `python manage.py test`
-- [ ] `python manage.py behave` passes
-- [ ] Coverage ≥ 80%
+- [x] Every acceptance criterion in `spec.md` has a passing test
+- [x] Full suite green: `python manage.py test`
+- [x] `python manage.py behave` passes
+- [x] Coverage ≥ 80%
 - [ ] `AI-USAGE.md` updated

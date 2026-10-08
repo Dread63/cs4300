@@ -1,6 +1,6 @@
 # Spec: Booking history
 
-**Status:** Draft, decisions made, ready for review
+**Status:** Implemented
 **Author:** Joshua Douglas  **Date:** 2026-10-08
 
 > The user stories (US-#) and first acceptance criteria (AC-#) are started for you. Every `TODO` is a decision **you** make.
