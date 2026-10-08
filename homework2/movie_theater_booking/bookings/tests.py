@@ -655,3 +655,25 @@ class BookingAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.json(), self.client.get("/api/bookings/9999/").json())
         self.assertNotIn("alex", response.content.decode())
+
+    def test_create_booking_201(self):
+        self.client.force_authenticate(self.sam)
+
+        response = self.client.post("/api/bookings/", {"seat": self.a3.id}, format="json")
+
+        # AC-7: 201 with the new booking; the movie comes from the seat.
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        booking = Booking.objects.get(seat=self.a3)
+        self.assertEqual(
+            response.json(),
+            {
+                "id": booking.id,
+                "movie": self.dune.id,
+                "seat": self.a3.id,
+                "user": self.sam.id,
+                "booking_date": date.today().isoformat(),
+            },
+        )
+        # Went through Seat.book(), which is the only thing that sets the status.
+        self.a3.refresh_from_db()
+        self.assertTrue(self.a3.booking_status)

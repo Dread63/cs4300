@@ -50,7 +50,10 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class BookingViewSet(
-    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
 ):
     """The signed-in user's booking history at /api/bookings/ (spec 003)."""
 
@@ -60,6 +63,14 @@ class BookingViewSet(
     def get_queryset(self):
         # Only ever my bookings: every list and detail lookup goes through here (AC-2, AC-3).
         return Booking.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        """POST /api/bookings/ {"seat": id}: book through 002's Seat.book() (AC-7).
+
+        Not serializer.save(): that would skip the booking rules and booking_status.
+        """
+        seat = serializer.validated_data["seat"]
+        serializer.instance = seat.book(self.request.user)
 
 
 def movie_list(request):
