@@ -5,7 +5,7 @@ CS 4300 Homework 2. Moviegoers can browse movies, see which seats are free, book
 check their booking history, through a Bootstrap web UI or a JSON API that share the same data
 and the same booking rules.
 
-**Live app (Render):** <https://REPLACE-WITH-YOUR-SERVICE.onrender.com>
+**Live app (Render):** <https://cs4300-idm1.onrender.com/>
 **Demo account:** username `demo`. The password is in my Canvas submission comment.
 
 ---
